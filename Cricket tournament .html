@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>One-Day Shorthand Cricket Tournament | Agrañya Bidyut Sangha</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brandDark: '#050914',
+            brandNavy: '#0c162c',
+            brandSurface: '#122143',
+            brandBlue: '#0066ff',
+            brandCyan: '#00d2ff',
+            brandOrange: '#ff6600',
+            brandAmber: '#ffaa00'
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            bengali: ['"Hind Siliguri"', 'sans-serif'],
+            number: ['"Outfit"', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #050914;
+      color: #e2e8f0;
+      overflow-x: hidden;
+    }
+
+    .font-bn {
+      font-family: 'Hind Siliguri', sans-serif;
+    }
+
+    .bg-grid-pattern {
+      background-image: radial-gradient(rgba(0, 102, 255, 0.14) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+
+    .hero-gradient-text {
+      background: linear-gradient(135deg, #ffffff 15%, #b4d3fe 65%, #60a5fa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .glass-card {
+      background: rgba(12, 22, 44, 0.78);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(0, 102, 255, 0.22);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .glass-card:hover {
+      border-color: rgba(0, 210, 255, 0.45);
+      box-shadow: 0 16px 36px -10px rgba(0, 102, 255, 0.28);
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 8px #ff6600); }
+      50% { transform: scale(1.04); filter: drop-shadow(0 0 18px #ffaa00); }
+    }
+    .pulse-glow {
+      animation: pulseGlow 2.8s infinite ease-in-out;
+    }
+
+    @keyframes rotateSeam {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .animate-spin-slow {
+      animation: rotateSeam 70s linear infinite;
+    }
+
+    #toast {
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
+    }
+
+    ::-webkit-scrollbar { width: 7px; }
+    ::-webkit-scrollbar-track { background: #050914; }
+    ::-webkit-scrollbar-thumb { background: #1a2f54; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #0066ff; }
+  </style>
+</head>
+
+<body class="bg-brandDark text-slate-100 min-h-screen relative selection:bg-brandOrange selection:text-white">
+
+  <!-- Ambient Stadium Spotlight Lights -->
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    <div class="absolute -top-32 -left-32 w-96 h-96 bg-brandBlue/20 rounded-full blur-[130px]"></div>
+    <div class="absolute top-1/3 -right-32 w-[520px] h-[520px] bg-brandCyan/15 rounded-full blur-[140px]"></div>
+    <div class="absolute bottom-12 left-1/3 w-80 h-80 bg-brandOrange/15 rounded-full blur-[130px]"></div>
+    <div class="absolute inset-0 bg-grid-pattern opacity-40"></div>
+    <canvas id="particlesCanvas" class="w-full h-full block opacity-75"></canvas>
+  </div>
+
+  <!-- Decorative Cricket Seam Silhouette Watermark -->
+  <div class="fixed -right-24 top-24 pointer-events-none opacity-[0.04] z-0 select-none hidden lg:block">
+    <svg class="w-[620px] h-[620px] animate-spin-slow" viewBox="0 0 200 200" fill="none" stroke="#ffffff">
+      <circle cx="100" cy="100" r="95" stroke-width="1.5" stroke-dasharray="4 3"/>
+      <path d="M40 30 C 80 80, 80 120, 40 170" stroke-width="2" stroke-linecap="round"/>
+      <path d="M160 30 C 120 80, 120 120, 160 170" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </div>
+
+  <!-- Top Sticky Header -->
+  <header class="sticky top-0 z-40 backdrop-blur-md bg-brandDark/85 border-b border-white/10 px-4 py-3">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      
+      <!-- Logo & Club Info -->
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="switchView('public')">
+        <div class="relative w-11 h-11 rounded-xl bg-gradient-to-tr from-brandBlue via-brandCyan to-amber-400 p-[1.5px] shadow-lg shadow-brandBlue/35">
+          <div class="w-full h-full bg-brandNavy rounded-xl flex items-center justify-center overflow-hidden relative">
+            <div class="absolute inset-0 bg-brandCyan/20 blur-sm rounded-full animate-pulse"></div>
+            <!-- Electric Lightning Bolt Icon for Bidyut Sangha -->
+            <svg class="w-6 h-6 text-amber-400 filter drop-shadow-[0_0_8px_rgba(251,191,36,0.9)] relative z-10" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z"/>
+            </svg>
+          </div>
+        </div>
+        <div>
+          <span class="block text-[11px] uppercase tracking-widest text-brandCyan font-bold flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>
+            Sports Festival 2026
+          </span>
+          <h2 class="text-base font-extrabold text-white tracking-wide">
+            Agrañya Bidyut Sangha
+          </h2>
+        </div>
+      </div>
+      
+      <!-- Nav Action Controls -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <button id="adminTabBtn" onclick="handleAdminTabClick()" class="px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-xs font-semibold flex items-center gap-1.5 text-slate-300 transition">
+          <i class="fa-solid fa-lock text-brandAmber"></i>
+          <span id="adminTabBtnText">Admin Room</span>
+        </button>
+
+        <button onclick="openBookingModal()" class="px-4 py-1.5 rounded-xl bg-gradient-to-r from-brandOrange to-brandAmber hover:brightness-110 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-brandOrange/30 transition transform active:scale-95 flex items-center gap-1.5">
+          <i class="fa-solid fa-bolt"></i>
+          <span>Book Team Slot</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ======================== VIEW 1: PUBLIC TOURNAMENT PORTAL ======================== -->
+  <div id="publicView" class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-6 pb-24">
+    
+    <!-- Hero / Tournament Showcase Banner -->
+    <section class="glass-card rounded-3xl p-6 sm:p-10 mb-8 overflow-hidden relative border border-brandBlue/35">
+      
+      <div class="flex flex-wrap items-center gap-2 mb-4">
+        <span class="px-3.5 py-1 rounded-full bg-brandBlue/20 text-brandCyan border border-brandBlue/40 text-xs font-semibold flex items-center gap-1.5">
+          <i class="fa-solid fa-shield-halved"></i> Knockout Tournament
+        </span>
+        <span class="px-3.5 py-1 rounded-full bg-white/5 text-slate-300 border border-white/10 text-xs font-semibold">
+          <i class="fa-solid fa-users mr-1"></i> Open for All Ages
+        </span>
+        <span class="px-3.5 py-1 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-xs font-semibold flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> Live Slot Booking Open
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <!-- Title & Info -->
+        <div class="lg:col-span-8">
+          <div class="text-brandCyan text-xs sm:text-sm font-bold tracking-wider flex items-center gap-2 uppercase">
+            <span class="h-0.5 w-6 bg-brandCyan"></span>
+            <span>Agrañya Bidyut Sangha Presents</span>
+          </div>
+
+          <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight hero-gradient-text my-3 leading-tight sm:leading-none">
+            One-Day Shorthand<br>Cricket Tournament
+          </h1>
+
+          <div class="space-y-2.5 mt-4 text-slate-300 text-sm sm:text-base">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-brandBlue/20 flex items-center justify-center text-brandCyan shrink-0">
+                <i class="fa-regular fa-calendar-check"></i>
+              </div>
+              <div>
+                <span class="text-slate-400 text-xs block">Tournament Date</span>
+                <span class="font-bold text-white text-base">Friday, 13 November 2026</span>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-brandBlue/20 flex items-center justify-center text-brandCyan shrink-0">
+                <i class="fa-solid fa-location-dot"></i>
+              </div>
+              <div>
+                <span class="text-slate-400 text-xs block">Official Venue</span>
+                <span class="font-bold text-white text-base">Agrañya Bidyut Sangha Ground</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Highlight Entry Fee & Booking CTA -->
+          <div class="mt-6 pt-5 border-t border-white/10 flex flex-wrap items-center gap-4">
+            <div class="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-brandOrange/20 to-brandAmber/10 border border-brandOrange/40 pulse-glow">
+              <span class="text-xs text-brandAmber block font-medium">Entry Fee</span>
+              <div class="text-2xl sm:text-3xl font-black text-brandOrange tracking-wide font-number">
+                ₹500 <span class="text-xs font-sans font-normal text-slate-300">/ Team</span>
+              </div>
+            </div>
+
+            <button onclick="openBookingModal()" class="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-brandOrange via-orange-500 to-amber-500 hover:brightness-110 text-white font-extrabold text-sm sm:text-base shadow-xl shadow-brandOrange/30 transition transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2">
+              <i class="fa-solid fa-trophy"></i>
+              <span>Register Team Slot</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Live Slot Tracker & Countdown Widget -->
+        <div class="lg:col-span-4 flex flex-col gap-4">
+          <!-- Countdown -->
+          <div class="p-5 rounded-2xl bg-black/40 border border-brandBlue/30 text-center">
+            <span class="text-xs font-semibold text-brandCyan uppercase tracking-widest block mb-3">
+              <i class="fa-regular fa-clock mr-1"></i> Match Day Countdown
+            </span>
+            <div class="grid grid-cols-4 gap-2 text-center">
+              <div class="bg-brandSurface/80 p-2 rounded-xl border border-white/5">
+                <span class="font-number text-2xl font-bold text-white block" id="cdDays">00</span>
+                <span class="text-[10px] text-slate-400 uppercase font-semibold">Days</span>
+              </div>
+              <div class="bg-brandSurface/80 p-2 rounded-xl border border-white/5">
+                <span class="font-number text-2xl font-bold text-white block" id="cdHours">00</span>
+                <span class="text-[10px] text-slate-400 uppercase font-semibold">Hours</span>
+              </div>
+              <div class="bg-brandSurface/80 p-2 rounded-xl border border-white/5">
+                <span class="font-number text-2xl font-bold text-white block" id="cdMinutes">00</span>
+                <span class="text-[10px] text-slate-400 uppercase font-semibold">Mins</span>
+              </div>
+              <div class="bg-brandSurface/80 p-2 rounded-xl border border-white/5">
+                <span class="font-number text-2xl font-bold text-brandOrange block" id="cdSeconds">00</span>
+                <span class="text-[10px] text-slate-400 uppercase font-semibold">Secs</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slots Status -->
+          <div class="p-5 rounded-2xl bg-black/40 border border-brandBlue/30">
+            <div class="flex justify-between items-center text-xs mb-2 font-medium">
+              <span class="text-slate-300">Confirmed Slots:</span>
+              <span class="text-brandCyan font-bold"><span id="bookedSlotsCount" class="font-number text-base text-amber-400">0</span> / 12 Teams</span>
+            </div>
+            <div class="w-full bg-slate-800 rounded-full h-3 overflow-hidden p-0.5 border border-white/10">
+              <div id="slotsProgressBar" class="bg-gradient-to-r from-brandBlue to-brandOrange h-full rounded-full transition-all duration-700" style="width: 0%;"></div>
+            </div>
+            <div class="flex justify-between items-center text-[11px] mt-2">
+              <span class="text-slate-400">Under Review: <b id="pendingBadgeCount" class="text-brandCyan font-number">0</b></span>
+              <span class="text-amber-300/90 font-medium">Available: <b id="remainingSlotsBadge" class="font-number text-amber-400">12</b> Slots</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sections 01 - 04 Poster Grid -->
+    <div class="space-y-6">
+
+      <!-- 01: Overview & Prizes -->
+      <div class="glass-card rounded-2xl p-6 relative">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-brandBlue/20 text-brandCyan border border-brandBlue/40 font-number font-black text-2xl flex items-center justify-center shrink-0">01</div>
+          <div class="flex-1">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+              <h3 class="text-xl font-bold text-white">Tournament Overview & Prizes</h3>
+              <span class="text-xs text-brandCyan bg-brandBlue/10 px-2.5 py-1 rounded-md border border-brandBlue/20 font-semibold">12 Selected Teams</span>
+            </div>
+            <p class="text-slate-300 text-sm leading-relaxed mb-5">
+              Organized by Agrañya Bidyut Sangha. An electrifying knockout showdown among 12 competitive cricket teams. Register your squad, pay the entry fee, and secure your team slot before they run out.
+            </p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Champions -->
+              <div class="relative p-5 rounded-2xl bg-gradient-to-b from-amber-500/15 via-brandSurface/80 to-brandSurface border-2 border-amber-400/50 shadow-xl">
+                <div class="flex items-center gap-4">
+                  <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-300 flex items-center justify-center text-black text-2xl shadow-lg shrink-0">
+                    <i class="fa-solid fa-trophy"></i>
+                  </div>
+                  <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-amber-400">1st Prize • Champions 🏆</span>
+                    <h4 class="text-3xl font-extrabold text-white font-number my-0.5">₹4,000</h4>
+                    <p class="text-xs text-amber-200/90 font-medium">+ Attractive Champion Trophy</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Runners-Up -->
+              <div class="relative p-5 rounded-2xl bg-gradient-to-b from-slate-400/15 via-brandSurface/80 to-brandSurface border border-slate-400/40 shadow-xl">
+                <div class="flex items-center gap-4">
+                  <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-slate-300 to-slate-100 flex items-center justify-center text-slate-800 text-2xl shadow-lg shrink-0">
+                    <i class="fa-solid fa-medal"></i>
+                  </div>
+                  <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-300">2nd Prize • Runners-Up 🥈</span>
+                    <h4 class="text-3xl font-extrabold text-white font-number my-0.5">₹2,000</h4>
+                    <p class="text-xs text-slate-300 font-medium">+ Attractive Runner-Up Trophy</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 02: Official Rules (PRESERVED IN ORIGINAL BENGALI) -->
+      <div class="glass-card rounded-2xl p-6 relative">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-brandBlue/20 text-brandCyan border border-brandBlue/40 font-number font-black text-2xl flex items-center justify-center shrink-0">02</div>
+          <div class="flex-1">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+              <h3 class="text-xl font-bold text-white">
+                Official Rules & Regulations <span class="text-slate-400 text-sm font-bn font-normal">(অফিসিয়াল নিয়মাবলী)</span>
+              </h3>
+              <span class="text-xs text-brandCyan bg-brandBlue/10 px-2.5 py-1 rounded-md border border-brandBlue/20 font-bn">৭টি প্রধান নির্দেশিকা</span>
+            </div>
+
+            <!-- BENGALI RULES ACCORDING TO SPEC -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm font-bn">
+              <div class="p-3.5 rounded-xl bg-brandSurface/60 border border-white/5 flex items-start gap-3">
+                <div class="w-6 h-6 rounded-full bg-brandCyan/20 text-brandCyan flex items-center justify-center font-number text-xs font-bold shrink-0 mt-0.5">১</div>
+                <p class="text-slate-200">খেলাটি <strong>১২টি দলের মধ্যে</strong> সীমাবদ্ধ থাকবে।</p>
+              </div>
+              <div class="p-3.5 rounded-xl bg-brandSurface/60 border border-white/5 flex items-start gap-3">
+                <div class="w-6 h-6 rounded-full bg-brandCyan/20 text-brandCyan flex items-center justify-center font-number text-xs font-bold shrink-0 mt-0.5">২</div>
+                <p class="text-slate-200">মাঠের মধ্যে <strong>আম্পায়ারের সিদ্ধান্ত চূড়ান্ত</strong>।</p>
+              </div>
+              <div class="p-3.5 rounded-xl bg-brandSurface/60 border border-white/5 flex items-start gap-3">
+                <div class="w-6 h-6 rounded-full bg-brandCyan/20 text-brandCyan flex items-center justify-center font-number text-xs font-bold shrink-0 mt-0.5">৩</div>
+                <p class="text-slate-200">প্রতিটি ম্যাচে <strong>ম্যান অব দ্য ম্যাচ</strong> থাকবে।</p>
+              </div>
+              <div class="p-3.5 rounded-xl bg-brandSurface/60 border border-white/5 flex items-start gap-3">
+                <div class="w-6 h-6 rounded-full bg-brandOrange/20 text-brandOrange flex items-center justify-center font-number text-xs font-bold shrink-0 mt-0.5">৪</div>
+                <p class="text-slate-200">মাঠে আসার নির্ধারিত সময় <strong>সকাল ৭টার মধ্যে</strong>; উপস্থিত থাকতে হবে।</p>
+              </div>
+              <div class="p-3.5 rounded-xl bg-brandSurface/60 border border-white/5 flex items-start gap-3">
+                <div class="w-6 h-6 rounded-full bg-brandCyan/20 text-brandCyan flex items-center justify-center font-number text-xs font-bold shrink-0 mt-0.5">৫</div>
+                <p class="text-slate-200">টিম কমলে বা বাড়লে পুরস্কার পরিবর্তন হতে পারে।</p>
+              </div>
+              <div class="p-3.5 rounded-xl bg-brandSurface/60 border border-white/5 flex items-start gap-3">
+                <div class="w-6 h-6 rounded-full bg-brandCyan/20 text-brandCyan flex items-center justify-center font-number text-xs font-bold shrink-0 mt-0.5">৬</div>
+                <p class="text-slate-200">প্রাকৃতিক দুর্যোগের কারণে দিন পরিবর্তন হতে পারে।</p>
+              </div>
+              <div class="p-3.5 rounded-xl bg-brandSurface/60 border border-white/5 flex items-start gap-3 md:col-span-2">
+                <div class="w-6 h-6 rounded-full bg-brandCyan/20 text-brandCyan flex items-center justify-center font-number text-xs font-bold shrink-0 mt-0.5">৭</div>
+                <p class="text-slate-200">বাকি নিয়মাবলী মাঠে জানানো হবে।</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 03: Live Slots & Team Board (12 Total Slots) -->
+      <div class="glass-card rounded-2xl p-6 relative">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-brandBlue/20 text-brandCyan border border-brandBlue/40 font-number font-black text-2xl flex items-center justify-center shrink-0">03</div>
+          <div class="flex-1">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+              <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                <span>Live Slots & Confirmed Teams</span>
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              </h3>
+              <span class="px-3 py-1 rounded-full text-xs font-bold bg-brandBlue/20 text-brandCyan border border-brandBlue/30">
+                Available: <span id="confirmedSlotsBadge" class="font-number text-amber-400">12</span> Slots Left
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 mb-4">Teams appear here only after the administrator verifies payment proof and accepts the application.</p>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs text-slate-300">
+                <thead class="bg-brandSurface text-slate-400 uppercase text-[10px] tracking-wider border-b border-white/10">
+                  <tr>
+                    <th class="p-3">Slot</th>
+                    <th class="p-3">Team Name</th>
+                    <th class="p-3">Captain</th>
+                    <th class="p-3">Town / Village</th>
+                    <th class="p-3 text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="confirmedTeamsTableBody" class="divide-y divide-white/5">
+                  <!-- Dynamically populated 12 slots -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 04: Official Contacts & Payment Section -->
+      <div class="glass-card rounded-2xl p-6 relative">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-brandBlue/20 text-brandCyan border border-brandBlue/40 font-number font-black text-2xl flex items-center justify-center shrink-0">04</div>
+          <div class="flex-1">
+            <h3 class="text-xl font-bold text-white mb-1">Official Contacts & Payment Gateways</h3>
+            <p class="text-xs text-slate-400 mb-5">Pay ₹500 via PhonePe and upload the receipt screenshot in the registration form.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+              
+              <!-- Sreyam PhonePe -->
+              <div class="p-4 rounded-2xl bg-gradient-to-b from-[#5f259f]/35 to-brandSurface/80 border-2 border-[#8235db]/60 flex flex-col justify-between shadow-lg shadow-[#5f259f]/20">
+                <div>
+                  <div class="flex justify-between items-center mb-1.5">
+                    <span class="font-bold text-white text-base">Sreyam Bhunia</span>
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#5f259f] text-white flex items-center gap-1 shadow">
+                      <i class="fa-solid fa-mobile-screen-button"></i> PhonePe
+                    </span>
+                  </div>
+                  <span class="font-number font-bold text-xl text-purple-200 block mb-1">6294372300</span>
+                  <p class="text-[11px] text-purple-300/80 mb-3">Official Entry Fee Payment Number</p>
+                </div>
+                <div class="flex gap-2">
+                  <a href="tel:6294372300" class="flex-1 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-center text-xs font-bold text-white transition flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-phone text-xs"></i> Call
+                  </a>
+                  <button onclick="copyNumber('6294372300', 'PhonePe (Sreyam)')" class="px-3.5 py-2 bg-[#5f259f] hover:bg-[#722ebd] rounded-xl text-xs font-bold text-white transition flex items-center justify-center gap-1" title="Copy Number">
+                    <i class="fa-regular fa-copy"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Sayan WhatsApp (Brand WhatsApp Green) -->
+              <div class="p-4 rounded-2xl bg-gradient-to-b from-[#25D366]/25 to-brandSurface/80 border-2 border-[#25D366]/60 flex flex-col justify-between shadow-lg shadow-[#25D366]/15">
+                <div>
+                  <div class="flex justify-between items-center mb-1.5">
+                    <span class="font-bold text-white text-base">Sayan Bhunia</span>
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#25D366] text-slate-950 flex items-center gap-1 shadow">
+                      <i class="fa-brands fa-whatsapp text-xs"></i> WhatsApp
+                    </span>
+                  </div>
+                  <span class="font-number font-bold text-xl text-emerald-300 block mb-1">8389079513</span>
+                  <p class="text-[11px] text-emerald-200/80 mb-3">Instant Tournament Enquiry & Chat</p>
+                </div>
+                <div class="flex gap-2">
+                  <a href="https://wa.me/918389079513?text=Hello%2C%20we%20want%20to%20enquire%20about%20the%20Agra%C3%B1ya%20Bidyut%20Sangha%20One-Day%20Cricket%20Tournament." target="_blank" rel="noopener noreferrer" class="flex-1 py-2 bg-[#25D366] hover:bg-[#20ba59] rounded-xl text-center text-xs font-bold text-slate-950 transition flex items-center justify-center gap-1.5 shadow">
+                    <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp Chat
+                  </a>
+                  <a href="tel:8389079513" class="px-3.5 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-bold text-white transition flex items-center justify-center" title="Call Sayan">
+                    <i class="fa-solid fa-phone text-xs"></i>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Animesh Emergency (Alert Red Theme) -->
+              <div class="p-4 rounded-2xl bg-gradient-to-b from-rose-600/25 to-brandSurface/80 border-2 border-rose-500/60 flex flex-col justify-between shadow-lg shadow-rose-600/15">
+                <div>
+                  <div class="flex justify-between items-center mb-1.5">
+                    <span class="font-bold text-white text-base">Animesh Bhunia</span>
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-rose-600 text-white flex items-center gap-1 shadow animate-pulse">
+                      <i class="fa-solid fa-triangle-exclamation text-[10px]"></i> Emergency
+                    </span>
+                  </div>
+                  <span class="font-number font-bold text-xl text-rose-300 block mb-1">8016782981</span>
+                  <p class="text-[11px] text-rose-200/80 mb-3">Ground Logistics & Urgent Enquiries</p>
+                </div>
+                <div class="flex gap-2">
+                  <a href="tel:8016782981" class="flex-1 py-2 bg-rose-600 hover:bg-rose-500 rounded-xl text-center text-xs font-bold text-white transition flex items-center justify-center gap-1.5 shadow">
+                    <i class="fa-solid fa-phone-volume text-xs"></i> Emergency Call
+                  </a>
+                  <button onclick="copyNumber('8016782981', 'Animesh')" class="px-3.5 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-bold text-slate-200 transition" title="Copy Number">
+                    <i class="fa-regular fa-copy"></i>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ======================== VIEW 2: ADMIN DASHBOARD ======================== -->
+  <div id="adminView" class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-24 hidden">
+    
+    <!-- Admin Top Banner -->
+    <div class="glass-card rounded-3xl p-6 mb-6 border border-brandAmber/40 relative">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="px-3 py-0.5 rounded-full text-[11px] font-bold bg-brandAmber/20 text-brandAmber border border-brandAmber/40">
+              <i class="fa-solid fa-shield-halved mr-1"></i> Admin Control Room
+            </span>
+            <span class="text-xs text-slate-400">Agrañya Bidyut Sangha</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Team Verification & Slot Allocation</h2>
+          <p class="text-xs text-slate-300 mt-1">Review uploaded ₹500 payment screenshots, accept teams to confirm slots, or reject invalid requests.</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <!-- Change PIN Button -->
+          <button onclick="openChangePinModal()" class="px-3.5 py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold transition flex items-center gap-1.5">
+            <i class="fa-solid fa-key"></i> Change PIN
+          </button>
+          
+          <!-- Print / Export Teams Button -->
+          <button onclick="exportTeamsPDF()" class="px-3.5 py-2 rounded-xl bg-brandBlue/20 hover:bg-brandBlue/40 text-brandCyan border border-brandBlue/40 text-xs font-bold transition flex items-center gap-1.5">
+            <i class="fa-solid fa-print"></i> Print Team List
+          </button>
+
+          <button onclick="switchView('public')" class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold transition flex items-center gap-1.5">
+            <i class="fa-solid fa-eye"></i> View Public Site
+          </button>
+          
+          <button onclick="logoutAdmin()" class="px-3.5 py-2 rounded-xl bg-rose-600/20 hover:bg-rose-600/40 text-rose-300 border border-rose-500/30 text-xs font-semibold transition flex items-center gap-1.5">
+            <i class="fa-solid fa-right-from-bracket"></i> Logout
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Counters -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
+        <div class="bg-brandSurface/80 p-3.5 rounded-2xl border border-white/5">
+          <span class="text-[11px] text-slate-400 block font-medium">Total Received</span>
+          <span class="font-number text-2xl font-black text-white" id="admTotalCount">0</span>
+        </div>
+        <div class="bg-brandSurface/80 p-3.5 rounded-2xl border border-emerald-500/30">
+          <span class="text-[11px] text-emerald-300 block font-medium">Confirmed Slots</span>
+          <span class="font-number text-2xl font-black text-emerald-400" id="admAcceptedCount">0 / 12</span>
+        </div>
+        <div class="bg-brandSurface/80 p-3.5 rounded-2xl border border-amber-500/30">
+          <span class="text-[11px] text-amber-300 block font-medium">Pending Review</span>
+          <span class="font-number text-2xl font-black text-amber-400" id="admPendingCount">0</span>
+        </div>
+        <div class="bg-brandSurface/80 p-3.5 rounded-2xl border border-rose-500/30">
+          <span class="text-[11px] text-rose-300 block font-medium">Rejected</span>
+          <span class="font-number text-2xl font-black text-rose-400" id="admRejectedCount">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin Registration List / Table -->
+    <div class="glass-card rounded-2xl p-6">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-list-check text-brandCyan"></i>
+          <span>Submitted Team Registrations</span>
+        </h3>
+        <div class="flex items-center gap-2 text-xs">
+          <span class="text-slate-400">Filter By:</span>
+          <select id="adminFilter" onchange="renderAdminList()" class="bg-slate-900 border border-white/15 rounded-lg px-2.5 py-1 text-white text-xs focus:outline-none">
+            <option value="all">All Applications</option>
+            <option value="pending">Pending Only</option>
+            <option value="accepted">Accepted (Confirmed)</option>
+            <option value="rejected">Rejected Only</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs text-slate-300">
+          <thead class="bg-brandSurface text-slate-400 uppercase text-[10px] tracking-wider border-b border-white/10">
+            <tr>
+              <th class="p-3">Time</th>
+              <th class="p-3">Team Details</th>
+              <th class="p-3">Captain & Contact</th>
+              <th class="p-3 text-center">Payment Screenshot</th>
+              <th class="p-3 text-center">Status</th>
+              <th class="p-3 text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="adminTableBody" class="divide-y divide-white/5">
+            <!-- Dynamically injected requests -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ======================== MODALS ======================== -->
+
+  <!-- 1. Registration Modal with Screenshot Upload -->
+  <div id="bookingModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-brandNavy border border-brandBlue/40 w-full max-w-md rounded-3xl p-6 shadow-2xl relative max-h-[92vh] overflow-y-auto">
+      
+      <button onclick="closeBookingModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center text-sm transition">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="text-center mb-4">
+        <div class="w-12 h-12 mx-auto rounded-2xl bg-brandOrange/20 text-brandOrange border border-brandOrange/40 flex items-center justify-center text-xl mb-2">
+          <i class="fa-solid fa-cricket-bat-ball"></i>
+        </div>
+        <h3 class="text-xl font-bold text-white">Team Registration</h3>
+        <p class="text-xs text-slate-400 mt-0.5">Agrañya Bidyut Sangha • Entry Fee: ₹500</p>
+      </div>
+
+      <form id="teamRegisterForm" onsubmit="handleRegistrationSubmit(event)" class="space-y-3.5 text-xs">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Team Name *</label>
+          <input type="text" id="regTeamName" required placeholder="e.g. Agrañya Super Kings" class="w-full bg-slate-900 border border-white/15 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brandCyan text-sm">
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Captain Name *</label>
+            <input type="text" id="regCaptainName" required placeholder="Captain's full name" class="w-full bg-slate-900 border border-white/15 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brandCyan text-sm">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Mobile / WhatsApp *</label>
+            <input type="tel" id="regPhone" pattern="[0-9]{10}" required placeholder="10-digit number" class="w-full bg-slate-900 border border-white/15 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brandCyan text-sm">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Town / Village / Location *</label>
+          <input type="text" id="regLocation" required placeholder="e.g. Agrañya / Bhagabanpur" class="w-full bg-slate-900 border border-white/15 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brandCyan text-sm">
+        </div>
+
+        <!-- PhonePe Payment Instruction Card -->
+        <div class="p-3 rounded-xl bg-purple-950/40 border border-purple-500/40 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] text-purple-300 font-bold flex items-center gap-1">
+              <i class="fa-solid fa-mobile-screen-button"></i> PhonePe Number:
+            </span>
+            <div class="flex items-center gap-1.5">
+              <span class="font-number font-bold text-white text-sm">6294372300</span>
+              <button type="button" onclick="copyNumber('6294372300', 'PhonePe (Sreyam)')" class="text-purple-300 hover:text-white text-xs" title="Copy Number">
+                <i class="fa-regular fa-copy"></i>
+              </button>
+            </div>
+          </div>
+          <p class="text-[10px] text-slate-300 leading-tight">
+            Send ₹500 to the above PhonePe number and attach the successful payment screenshot below.
+          </p>
+        </div>
+
+        <!-- Image Screenshot Upload Box -->
+        <div>
+          <label class="block text-amber-300 font-semibold mb-1 flex items-center justify-between">
+            <span>Upload Payment Screenshot (₹500 PhonePe) *</span>
+            <span class="text-[10px] text-slate-400 font-normal">Image Only</span>
+          </label>
+          
+          <div id="uploadContainer" class="border-2 border-dashed border-white/20 hover:border-brandCyan rounded-2xl p-4 text-center cursor-pointer transition bg-slate-900/60 relative">
+            <input type="file" id="regScreenshotInput" accept="image/*" required class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="handleScreenshotSelect(event)">
+            
+            <div id="uploadPrompt" class="space-y-1">
+              <i class="fa-solid fa-cloud-arrow-up text-2xl text-brandCyan"></i>
+              <p class="text-xs text-white font-semibold">Click or tap to upload receipt screenshot</p>
+              <p class="text-[10px] text-slate-400">Supported formats: JPG, PNG, WebP</p>
+            </div>
+
+            <!-- Image Preview Box -->
+            <div id="previewContainer" class="hidden flex-col items-center gap-2">
+              <div class="relative w-36 h-36 rounded-xl overflow-hidden border-2 border-brandCyan shadow-lg">
+                <img id="screenshotPreviewImg" src="" alt="Payment Screenshot" class="w-full h-full object-cover">
+                <button type="button" onclick="removeSelectedScreenshot(event)" class="absolute top-1 right-1 w-6 h-6 rounded-full bg-rose-600 text-white flex items-center justify-center text-xs hover:bg-rose-500 shadow">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+              <span class="text-[11px] text-emerald-400 font-bold flex items-center gap-1">
+                <i class="fa-solid fa-circle-check"></i> Screenshot Attached
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" id="submitBtn" class="w-full py-3 rounded-xl bg-gradient-to-r from-brandOrange to-brandAmber hover:brightness-110 text-white font-bold text-sm shadow-lg shadow-brandOrange/30 transition transform active:scale-95 flex items-center justify-center gap-2 mt-2">
+          <span>Submit Registration</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Admin Login Modal -->
+  <div id="adminLoginModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-brandNavy border border-amber-500/40 w-full max-w-sm rounded-3xl p-6 shadow-2xl relative">
+      <button onclick="closeAdminLoginModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center text-sm transition">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="text-center mb-5">
+        <div class="w-12 h-12 mx-auto rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center text-xl mb-2">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h3 class="text-xl font-bold text-white">Admin Access</h3>
+        <p class="text-xs text-slate-400 mt-1">Enter your secure PIN to access the dashboard</p>
+      </div>
+
+      <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-slate-300 text-xs font-semibold mb-1">Admin Security PIN</label>
+          <input type="password" id="adminPinInput" required placeholder="Enter PIN" class="w-full bg-slate-900 border border-white/20 rounded-xl px-3.5 py-2.5 text-center text-white tracking-widest text-lg font-number focus:outline-none focus:border-amber-400">
+        </div>
+
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-bold text-sm shadow-lg transition active:scale-95">
+          Login to Dashboard
+        </button>
+
+        <p class="text-center text-[11px] text-slate-400">
+          Default initial PIN: <span class="text-amber-400 font-number font-bold">1234</span>
+        </p>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Change PIN Modal -->
+  <div id="changePinModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-brandNavy border border-amber-500/50 w-full max-w-sm rounded-3xl p-6 shadow-2xl relative">
+      <button onclick="closeChangePinModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center text-sm transition">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="text-center mb-4">
+        <div class="w-11 h-11 mx-auto rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center text-lg mb-2">
+          <i class="fa-solid fa-key"></i>
+        </div>
+        <h3 class="text-lg font-bold text-white">Change Admin PIN</h3>
+        <p class="text-xs text-slate-400">Set a new personalized security passcode</p>
+      </div>
+
+      <form onsubmit="handleSaveNewPin(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Current PIN *</label>
+          <input type="password" id="currPinInput" required placeholder="Current PIN" class="w-full bg-slate-900 border border-white/20 rounded-xl px-3.5 py-2 text-white font-number text-center tracking-widest focus:outline-none focus:border-amber-400">
+        </div>
+
+        <div>
+          <label class="block text-amber-300 font-semibold mb-1">New PIN (4-8 digits) *</label>
+          <input type="password" id="newPinInput" required minlength="4" placeholder="Enter new PIN" class="w-full bg-slate-900 border border-amber-400/40 rounded-xl px-3.5 py-2 text-white font-number text-center tracking-widest focus:outline-none focus:border-amber-400">
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Confirm New PIN *</label>
+          <input type="password" id="confirmNewPinInput" required minlength="4" placeholder="Confirm new PIN" class="w-full bg-slate-900 border border-white/20 rounded-xl px-3.5 py-2 text-white font-number text-center tracking-widest focus:outline-none focus:border-amber-400">
+        </div>
+
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-bold text-sm shadow-lg transition active:scale-95 mt-2">
+          Update PIN
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. High-Res Screenshot Viewer Lightbox -->
+  <div id="imageViewerModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-center justify-center p-4" onclick="closeImageViewer()">
+    <div class="relative max-w-lg w-full bg-brandNavy rounded-3xl p-4 border border-white/20 shadow-2xl" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between pb-3 border-b border-white/10 mb-3">
+        <h4 class="text-sm font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-receipt text-emerald-400"></i>
+          <span id="viewerTeamTitle">Payment Receipt Proof</span>
+        </h4>
+        <button onclick="closeImageViewer()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-xs">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="max-h-[70vh] overflow-auto rounded-2xl flex items-center justify-center bg-black/60 p-2">
+        <img id="viewerImage" src="" alt="Payment Proof" class="max-w-full max-h-[65vh] object-contain rounded-lg">
+      </div>
+
+      <div class="pt-3 flex justify-between items-center text-xs text-slate-400">
+        <span id="viewerMetaInfo">₹500 Payment Verification</span>
+        <button onclick="downloadScreenshot()" class="px-3 py-1.5 bg-brandBlue/30 hover:bg-brandBlue text-brandCyan hover:text-white rounded-lg transition flex items-center gap-1 font-semibold">
+          <i class="fa-solid fa-download"></i> Save Image
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Message -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 pointer-events-none bg-brandNavy border border-brandCyan text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
+    <div id="toastIcon" class="w-7 h-7 rounded-full bg-brandCyan/20 text-brandCyan flex items-center justify-center text-xs">
+      <i class="fa-solid fa-check"></i>
+    </div>
+    <span id="toastMsg" class="text-xs font-semibold">Action completed successfully</span>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/10 py-6 text-center text-slate-500 text-xs relative z-10">
+    <p>© 2026 Agrañya Bidyut Sangha • One-Day Shorthand Cricket Tournament</p>
+    <p class="mt-1 text-[11px] text-slate-600">Club Grounds • Friday, 13 November 2026</p>
+  </footer>
+
+  <!-- Web Audio & App State Logic -->
+  <script>
+    // Audio FX generator
+    const audioCtx = (window.AudioContext || window.webkitAudioContext) ? new (window.AudioContext || window.webkitAudioContext)() : null;
+    function playBeep(freq = 600, type = 'sine', duration = 0.1) {
+      if (!audioCtx) return;
+      try {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    // Application state
+    const TOTAL_SLOTS = 12;
+    let allRegistrations = [];
+    let isAdminLoggedIn = false;
+    let selectedScreenshotBase64 = null;
+
+    // Toast helper
+    let toastTimeout;
+    function showToast(message, isWarning = false) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      const toastIcon = document.getElementById('toastIcon');
+
+      playBeep(isWarning ? 320 : 780, isWarning ? 'sawtooth' : 'sine', 0.15);
+
+      toastMsg.innerText = message;
+      if (isWarning) {
+        toast.className = toast.className.replace(/border-brandCyan/g, 'border-rose-500');
+        toastIcon.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-rose-400"></i>';
+      } else {
+        toast.className = toast.className.replace(/border-rose-500/g, 'border-brandCyan');
+        toastIcon.innerHTML = '<i class="fa-solid fa-check text-brandCyan"></i>';
+      }
+
+      toast.style.transform = 'translateY(0)';
+      toast.style.opacity = '1';
+
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.style.transform = 'translateY(6rem)';
+        toast.style.opacity = '0';
+      }, 3500);
+    }
+
+    // Client-side image compression
+    function handleScreenshotSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        showToast("Please upload a valid image file (JPG, PNG, WebP).", true);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const maxDim = 800;
+
+          if (width > height && width > maxDim) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else if (height > maxDim) {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          selectedScreenshotBase64 = canvas.toDataURL('image/jpeg', 0.75);
+
+          document.getElementById('screenshotPreviewImg').src = selectedScreenshotBase64;
+          document.getElementById('uploadPrompt').classList.add('hidden');
+          document.getElementById('previewContainer').classList.remove('hidden');
+          document.getElementById('previewContainer').classList.add('flex');
+          playBeep(880, 'sine', 0.1);
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeSelectedScreenshot(e) {
+      if (e) e.stopPropagation();
+      selectedScreenshotBase64 = null;
+      document.getElementById('regScreenshotInput').value = '';
+      document.getElementById('screenshotPreviewImg').src = '';
+      document.getElementById('previewContainer').classList.add('hidden');
+      document.getElementById('previewContainer').classList.remove('flex');
+      document.getElementById('uploadPrompt').classList.remove('hidden');
+      playBeep(450, 'sine', 0.08);
+    }
+
+    // Storage Management
+    function initStorage() {
+      if (!localStorage.getItem('abs_admin_pin')) {
+        localStorage.setItem('abs_admin_pin', '1234');
+      }
+
+      const stored = localStorage.getItem('abs_cricket_teams_data');
+      if (stored) {
+        try {
+          allRegistrations = JSON.parse(stored);
+        } catch (e) {
+          allRegistrations = [];
+        }
+      } else {
+        allRegistrations = [];
+      }
+      refreshUI();
+    }
+
+    function saveToLocalStorage() {
+      try {
+        localStorage.setItem('abs_cricket_teams_data', JSON.stringify(allRegistrations));
+      } catch (e) {
+        console.error("Storage limit reached:", e);
+      }
+    }
+
+    function refreshUI() {
+      renderPublicConfirmedTeams();
+      if (isAdminLoggedIn) {
+        renderAdminList();
+      }
+    }
+
+    // Public Confirmed Teams render
+    function renderPublicConfirmedTeams() {
+      const tbody = document.getElementById('confirmedTeamsTableBody');
+      tbody.innerHTML = '';
+
+      const acceptedTeams = allRegistrations.filter(r => r.status === 'accepted');
+      const bookedCount = acceptedTeams.length;
+      const leftCount = Math.max(0, TOTAL_SLOTS - bookedCount);
+      const pendingCount = allRegistrations.filter(r => r.status === 'pending').length;
+
+      document.getElementById('bookedSlotsCount').innerText = bookedCount;
+      document.getElementById('remainingSlotsBadge').innerText = leftCount;
+      document.getElementById('confirmedSlotsBadge').innerText = leftCount;
+      document.getElementById('pendingBadgeCount').innerText = pendingCount;
+      
+      const progressPercent = Math.min(100, Math.round((bookedCount / TOTAL_SLOTS) * 100));
+      document.getElementById('slotsProgressBar').style.width = `${progressPercent}%`;
+
+      if (bookedCount === 0) {
+        const trEmpty = document.createElement('tr');
+        trEmpty.innerHTML = `
+          <td colspan="5" class="p-6 text-center text-slate-400 bg-brandSurface/20">
+            <div class="flex flex-col items-center justify-center gap-1.5">
+              <i class="fa-solid fa-shield-cat text-2xl text-slate-500 mb-1"></i>
+              <p class="font-semibold text-slate-300">No teams confirmed yet</p>
+              <p class="text-[11px] text-slate-400">Fill out the booking form and submit payment proof. Confirmed slots will appear here (Slots 1 to 12).</p>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(trEmpty);
+      }
+
+      acceptedTeams.slice(0, TOTAL_SLOTS).forEach((team, idx) => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-white/5 transition bg-brandSurface/40";
+        tr.innerHTML = `
+          <td class="p-3 font-number font-bold text-amber-400">#${(idx + 1).toString().padStart(2, '0')}</td>
+          <td class="p-3 font-bold text-white flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span> ${team.teamName}
+          </td>
+          <td class="p-3 text-slate-300 font-medium">${team.captainName}</td>
+          <td class="p-3 text-slate-300">${team.location || '-'}</td>
+          <td class="p-3 text-center">
+            <span class="px-2.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+              <i class="fa-solid fa-check mr-0.5"></i> Confirmed Slot
+            </span>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      for (let i = bookedCount; i < TOTAL_SLOTS; i++) {
+        const tr = document.createElement('tr');
+        tr.className = "opacity-50 border-dashed hover:opacity-90 transition";
+        tr.innerHTML = `
+          <td class="p-3 font-number text-slate-500">#${(i + 1).toString().padStart(2, '0')}</td>
+          <td class="p-3 text-slate-500 italic">Available Slot...</td>
+          <td class="p-3 text-slate-500">-</td>
+          <td class="p-3 text-slate-500">-</td>
+          <td class="p-3 text-center">
+            <button onclick="openBookingModal()" class="px-2.5 py-1 rounded text-[10px] bg-brandOrange/15 text-brandOrange border border-brandOrange/30 hover:bg-brandOrange hover:text-white transition">
+              Book Slot
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      }
+    }
+
+    // Public Registration Submission
+    function handleRegistrationSubmit(e) {
+      e.preventDefault();
+      
+      const teamName = document.getElementById('regTeamName').value.trim();
+      const capName = document.getElementById('regCaptainName').value.trim();
+      const phone = document.getElementById('regPhone').value.trim();
+      const loc = document.getElementById('regLocation').value.trim();
+
+      if (!selectedScreenshotBase64) {
+        showToast("Please upload the PhonePe ₹500 payment receipt screenshot.", true);
+        return;
+      }
+
+      const acceptedCount = allRegistrations.filter(r => r.status === 'accepted').length;
+      if (acceptedCount >= TOTAL_SLOTS) {
+        showToast("Sorry! All 12 tournament slots are fully booked.", true);
+        return;
+      }
+
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Submitting...';
+
+      const registrationData = {
+        id: 'reg_' + Date.now(),
+        teamName: teamName,
+        captainName: capName,
+        phone: phone,
+        location: loc,
+        screenshot: selectedScreenshotBase64,
+        status: 'pending',
+        createdAt: Date.now()
+      };
+
+      allRegistrations.push(registrationData);
+      saveToLocalStorage();
+      refreshUI();
+
+      closeBookingModal();
+      document.getElementById('teamRegisterForm').reset();
+      removeSelectedScreenshot();
+      showToast(`Thank you! Registration for "${teamName}" submitted for verification.`);
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<span>Submit Registration</span><i class="fa-solid fa-arrow-right"></i>';
+    }
+
+    // Admin List Render
+    function renderAdminList() {
+      const filter = document.getElementById('adminFilter').value;
+      const tbody = document.getElementById('adminTableBody');
+      tbody.innerHTML = '';
+
+      let filtered = allRegistrations;
+      if (filter !== 'all') {
+        filtered = allRegistrations.filter(r => r.status === filter);
+      }
+
+      const acceptedCount = allRegistrations.filter(r => r.status === 'accepted').length;
+      const pendingCount = allRegistrations.filter(r => r.status === 'pending').length;
+      const rejectedCount = allRegistrations.filter(r => r.status === 'rejected').length;
+
+      document.getElementById('admTotalCount').innerText = allRegistrations.length;
+      document.getElementById('admAcceptedCount').innerText = `${acceptedCount} / 12`;
+      document.getElementById('admPendingCount').innerText = pendingCount;
+      document.getElementById('admRejectedCount').innerText = rejectedCount;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="p-6 text-center text-slate-400">
+              No tournament applications found in this category.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      filtered.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-white/5 transition bg-brandSurface/30";
+        
+        let statusBadge = '';
+        if (item.status === 'accepted') {
+          statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Accepted</span>`;
+        } else if (item.status === 'rejected') {
+          statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">Rejected</span>`;
+        } else {
+          statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">Pending</span>`;
+        }
+
+        const dateStr = item.createdAt ? new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-';
+
+        const screenshotCell = item.screenshot ? `
+          <div class="flex items-center justify-center">
+            <button onclick="viewFullScreenshot('${item.id}')" class="group relative w-12 h-12 rounded-xl overflow-hidden border border-brandCyan/40 hover:border-amber-400 shadow transition transform hover:scale-105">
+              <img src="${item.screenshot}" alt="Receipt" class="w-full h-full object-cover">
+              <div class="absolute inset-0 bg-black/40 group-hover:bg-transparent flex items-center justify-center text-white text-[10px]">
+                <i class="fa-solid fa-magnifying-glass-plus"></i>
+              </div>
+            </button>
+          </div>
+        ` : `<span class="text-slate-500 italic">No image</span>`;
+
+        const captainWaLink = `https://wa.me/91${item.phone}?text=Hello%20${encodeURIComponent(item.captainName)}%2C%20regarding%20your%20team%20registration%20'${encodeURIComponent(item.teamName)}'%20in%20Agra%C3%B1ya%20Bidyut%20Sangha%20Cricket%20Tournament...`;
+
+        tr.innerHTML = `
+          <td class="p-3 text-slate-400 font-number text-[11px]">${dateStr}</td>
+          <td class="p-3">
+            <span class="font-bold text-white block text-sm">${item.teamName}</span>
+            <span class="text-[11px] text-slate-400"><i class="fa-solid fa-location-dot mr-1"></i>${item.location || 'Unknown'}</span>
+          </td>
+          <td class="p-3">
+            <span class="font-semibold text-slate-200 block">${item.captainName}</span>
+            <div class="flex items-center gap-2 mt-0.5">
+              <a href="tel:${item.phone}" class="text-brandCyan font-number hover:underline"><i class="fa-solid fa-phone text-[10px] mr-1"></i>${item.phone}</a>
+              <a href="${captainWaLink}" target="_blank" class="text-emerald-400 hover:text-emerald-300" title="WhatsApp Captain"><i class="fa-brands fa-whatsapp text-sm"></i></a>
+            </div>
+          </td>
+          <td class="p-3 text-center">${screenshotCell}</td>
+          <td class="p-3 text-center">${statusBadge}</td>
+          <td class="p-3 text-center">
+            <div class="flex items-center justify-center gap-1.5">
+              ${item.status !== 'accepted' ? `
+                <button onclick="updateRegistrationStatus('${item.id}', 'accepted')" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] shadow transition flex items-center gap-1" title="Accept & Allot Slot">
+                  <i class="fa-solid fa-check"></i> Accept
+                </button>
+              ` : ''}
+
+              ${item.status !== 'rejected' ? `
+                <button onclick="updateRegistrationStatus('${item.id}', 'rejected')" class="px-2.5 py-1 rounded-lg bg-rose-600/30 hover:bg-rose-600 text-rose-200 font-bold text-[11px] transition flex items-center gap-1" title="Reject Request">
+                  <i class="fa-solid fa-xmark"></i> Reject
+                </button>
+              ` : ''}
+
+              <button onclick="deleteRegistration('${item.id}')" class="p-1.5 rounded-lg bg-white/5 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 transition" title="Delete record">
+                <i class="fa-regular fa-trash-can"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Full High-Res Screenshot Viewer
+    function viewFullScreenshot(id) {
+      const item = allRegistrations.find(r => r.id === id);
+      if (!item || !item.screenshot) return;
+
+      document.getElementById('viewerTeamTitle').innerText = `${item.teamName} - Payment Proof`;
+      document.getElementById('viewerMetaInfo').innerText = `Captain: ${item.captainName} (${item.phone})`;
+      document.getElementById('viewerImage').src = item.screenshot;
+
+      const modal = document.getElementById('imageViewerModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      playBeep(700, 'sine', 0.08);
+    }
+
+    function closeImageViewer() {
+      const modal = document.getElementById('imageViewerModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function downloadScreenshot() {
+      const src = document.getElementById('viewerImage').src;
+      if (!src) return;
+      const link = document.createElement('a');
+      link.href = src;
+      link.download = `Payment_Proof_${Date.now()}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      playBeep(900, 'sine', 0.1);
+    }
+
+    // Update Status (Accept / Reject)
+    function updateRegistrationStatus(id, newStatus) {
+      if (newStatus === 'accepted') {
+        const currentAccepted = allRegistrations.filter(r => r.status === 'accepted' && r.id !== id).length;
+        if (currentAccepted >= TOTAL_SLOTS) {
+          showToast("Slot limit reached! All 12 slots are already occupied.", true);
+          return;
+        }
+      }
+
+      const item = allRegistrations.find(r => r.id === id);
+      if (item) item.status = newStatus;
+      saveToLocalStorage();
+      refreshUI();
+
+      showToast(newStatus === 'accepted' ? 'Team verified and slot confirmed!' : 'Application rejected.');
+    }
+
+    // Delete Registration
+    function deleteRegistration(id) {
+      if (!confirm("Are you sure you want to permanently delete this registration?")) return;
+
+      allRegistrations = allRegistrations.filter(r => r.id !== id);
+      saveToLocalStorage();
+      refreshUI();
+      showToast("Application deleted.");
+    }
+
+    // Admin Authentication & Custom PIN Change
+    function handleAdminTabClick() {
+      playBeep(650, 'sine', 0.08);
+      if (isAdminLoggedIn) {
+        switchView('admin');
+      } else {
+        openAdminLoginModal();
+      }
+    }
+
+    function openAdminLoginModal() {
+      const modal = document.getElementById('adminLoginModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.getElementById('adminPinInput').value = '';
+      document.getElementById('adminPinInput').focus();
+    }
+
+    function closeAdminLoginModal() {
+      const modal = document.getElementById('adminLoginModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function handleAdminLogin(e) {
+      e.preventDefault();
+      const enteredPin = document.getElementById('adminPinInput').value.trim();
+      const currentSavedPin = localStorage.getItem('abs_admin_pin') || '1234';
+
+      if (enteredPin === currentSavedPin) {
+        isAdminLoggedIn = true;
+        closeAdminLoginModal();
+        document.getElementById('adminTabBtnText').innerText = 'Admin Dashboard';
+        switchView('admin');
+        showToast("Authenticated as Administrator!");
+      } else {
+        showToast("Incorrect PIN! Please enter the valid code.", true);
+      }
+    }
+
+    function logoutAdmin() {
+      isAdminLoggedIn = false;
+      document.getElementById('adminTabBtnText').innerText = 'Admin Room';
+      switchView('public');
+      showToast("Admin session ended.");
+    }
+
+    function openChangePinModal() {
+      const modal = document.getElementById('changePinModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.getElementById('currPinInput').value = '';
+      document.getElementById('newPinInput').value = '';
+      document.getElementById('confirmNewPinInput').value = '';
+    }
+
+    function closeChangePinModal() {
+      const modal = document.getElementById('changePinModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function handleSaveNewPin(e) {
+      e.preventDefault();
+      const curr = document.getElementById('currPinInput').value.trim();
+      const newP = document.getElementById('newPinInput').value.trim();
+      const conf = document.getElementById('confirmNewPinInput').value.trim();
+
+      const savedPin = localStorage.getItem('abs_admin_pin') || '1234';
+
+      if (curr !== savedPin) {
+        showToast("Current PIN is incorrect!", true);
+        return;
+      }
+      if (newP.length < 4) {
+        showToast("New PIN must be at least 4 digits!", true);
+        return;
+      }
+      if (newP !== conf) {
+        showToast("New PIN inputs do not match!", true);
+        return;
+      }
+
+      localStorage.setItem('abs_admin_pin', newP);
+      closeChangePinModal();
+      showToast("PIN updated successfully! Use the new PIN on your next login.");
+    }
+
+    // Print & Export Team List
+    function exportTeamsPDF() {
+      const accepted = allRegistrations.filter(r => r.status === 'accepted');
+      if (accepted.length === 0) {
+        showToast("No confirmed teams to print!", true);
+        return;
+      }
+
+      let printWindow = window.open('', '_blank');
+      let rows = accepted.map((t, i) => `
+        <tr>
+          <td style="padding: 8px; border: 1px solid #ccc; text-align: center;">${i+1}</td>
+          <td style="padding: 8px; border: 1px solid #ccc; font-weight: bold;">${t.teamName}</td>
+          <td style="padding: 8px; border: 1px solid #ccc;">${t.captainName}</td>
+          <td style="padding: 8px; border: 1px solid #ccc;">${t.phone}</td>
+          <td style="padding: 8px; border: 1px solid #ccc;">${t.location || ''}</td>
+        </tr>
+      `).join('');
+
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Agrañya Bidyut Sangha - 12 Confirmed Teams</title>
+            <style>
+              body { font-family: sans-serif; padding: 25px; color: #111; }
+              table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+              th { background: #f0f0f0; padding: 8px; border: 1px solid #ccc; text-align: left; }
+            </style>
+          </head>
+          <body>
+            <h2>Agrañya Bidyut Sangha • One-Day Cricket Tournament</h2>
+            <p><strong>Date:</strong> Friday, 13 November 2026 | <strong>Venue:</strong> Club Grounds</p>
+            <h3>Final Confirmed 12 Teams:</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 50px; text-align: center;">Slot</th>
+                  <th>Team Name</th>
+                  <th>Captain</th>
+                  <th>Contact Number</th>
+                  <th>Town / Village</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => { printWindow.print(); }, 500);
+    }
+
+    function switchView(view) {
+      const publicView = document.getElementById('publicView');
+      const adminView = document.getElementById('adminView');
+
+      if (view === 'admin') {
+        publicView.classList.add('hidden');
+        adminView.classList.remove('hidden');
+        renderAdminList();
+      } else {
+        adminView.classList.add('hidden');
+        publicView.classList.remove('hidden');
+        renderPublicConfirmedTeams();
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function openBookingModal() {
+      playBeep(720, 'sine', 0.08);
+      const modal = document.getElementById('bookingModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeBookingModal() {
+      const modal = document.getElementById('bookingModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function copyNumber(num, name) {
+      const textarea = document.createElement('textarea');
+      textarea.value = num;
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        showToast(`${name}: ${num} copied to clipboard!`);
+      } catch (err) {}
+      document.body.removeChild(textarea);
+    }
+
+    // Dynamic Countdown Timer
+    const targetTournamentDate = new Date('2026-11-13T07:00:00+05:30').getTime();
+    function updateCountdown() {
+      const now = new Date().getTime();
+      const diff = targetTournamentDate - now;
+
+      if (diff <= 0) return;
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      const dEl = document.getElementById('cdDays');
+      const hEl = document.getElementById('cdHours');
+      const mEl = document.getElementById('cdMinutes');
+      const sEl = document.getElementById('cdSeconds');
+
+      if (dEl) dEl.innerText = days < 10 ? '0' + days : days;
+      if (hEl) hEl.innerText = hours < 10 ? '0' + hours : hours;
+      if (mEl) mEl.innerText = minutes < 10 ? '0' + minutes : minutes;
+      if (sEl) sEl.innerText = seconds < 10 ? '0' + seconds : seconds;
+    }
+
+    // Particle Canvas Animation
+    function setupParticles() {
+      const canvas = document.getElementById('particlesCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let width = canvas.width = window.innerWidth;
+      let height = canvas.height = window.innerHeight;
+
+      window.addEventListener('resize', () => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+      });
+
+      const particles = [];
+      const particleCount = 38;
+
+      for (let i = 0; i < particleCount; i++) {
+        particles.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          radius: Math.random() * 2 + 0.5,
+          color: Math.random() > 0.4 ? 'rgba(0, 210, 255,' : 'rgba(255, 102, 0,',
+          alpha: Math.random() * 0.6 + 0.2,
+          speedX: (Math.random() - 0.5) * 0.35,
+          speedY: (Math.random() - 0.5) * 0.35
+        });
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, width, height);
+        particles.forEach(p => {
+          p.x += p.speedX;
+          p.y += p.speedY;
+          if (p.x < 0) p.x = width;
+          if (p.x > width) p.x = 0;
+          if (p.y < 0) p.y = height;
+          if (p.y > height) p.y = 0;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = p.color + p.alpha + ')';
+          ctx.fill();
+        });
+        requestAnimationFrame(animate);
+      }
+      animate();
+    }
+
+    window.onload = function() {
+      initStorage();
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+      setupParticles();
+    };
+  </script>
+</body>
+</html>
