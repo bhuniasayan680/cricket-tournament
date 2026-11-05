@@ -798,7 +798,40 @@
   </footer>
 
   <!-- Web Audio & App State Logic -->
-  <script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { 
+      getFirestore, 
+      doc, 
+      getDoc, 
+      setDoc, 
+      updateDoc, 
+      deleteDoc, 
+      onSnapshot, 
+      collection, 
+      addDoc 
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // Application ID and Centralized Cloud Configuration
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'agrania-bidyut-cricket-2026';
+    
+    // Default fallback Firebase config if environment variables aren't injected
+    const firebaseConfig = typeof __firebase_config !== 'undefined' 
+      ? JSON.parse(__firebase_config) 
+      : {
+          apiKey: "AIzaSyDummyKeyForFallbackLocalSync123",
+          authDomain: "agrania-bidyut-cricket.firebaseapp.com",
+          projectId: "agrania-bidyut-cricket",
+          storageBucket: "agrania-bidyut-cricket.appspot.com",
+          messagingSenderId: "1029384756",
+          appId: "1:1029384756:web:abcdef123456"
+        };
+
+    let app, auth, db;
+    let currentUser = null;
+    let centralAdminPin = "1234"; // Initial fallback until loaded from cloud
+
     // Audio FX generator
     const audioCtx = (window.AudioContext || window.webkitAudioContext) ? new (window.AudioContext || window.webkitAudioContext)() : null;
     function playBeep(freq = 600, type = 'sine', duration = 0.1) {
@@ -851,6 +884,7 @@
         toast.style.opacity = '0';
       }, 3500);
     }
+    window.showToast = showToast;
 
     // Client-side image compression
     function handleScreenshotSelect(e) {
@@ -896,6 +930,7 @@
       };
       reader.readAsDataURL(file);
     }
+    window.handleScreenshotSelect = handleScreenshotSelect;
 
     function removeSelectedScreenshot(e) {
       if (e) e.stopPropagation();
@@ -907,31 +942,67 @@
       document.getElementById('uploadPrompt').classList.remove('hidden');
       playBeep(450, 'sine', 0.08);
     }
+    window.removeSelectedScreenshot = removeSelectedScreenshot;
 
-    // Storage Management
-    function initStorage() {
-      if (!localStorage.getItem('abs_admin_pin')) {
-        localStorage.setItem('abs_admin_pin', '1234');
-      }
-
-      const stored = localStorage.getItem('abs_cricket_teams_data');
-      if (stored) {
-        try {
-          allRegistrations = JSON.parse(stored);
-        } catch (e) {
-          allRegistrations = [];
-        }
-      } else {
-        allRegistrations = [];
-      }
-      refreshUI();
-    }
-
-    function saveToLocalStorage() {
+    // --- CLOUD DATABASE INITIALIZATION & REALTIME LISTENERS ---
+    async function initCloudBackend() {
       try {
-        localStorage.setItem('abs_cricket_teams_data', JSON.stringify(allRegistrations));
-      } catch (e) {
-        console.error("Storage limit reached:", e);
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+
+        // Sign In securely before listening to Firestore
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+          const cred = await signInWithCustomToken(auth, __initial_auth_token);
+          currentUser = cred.user;
+        } else {
+          const cred = await signInAnonymously(auth);
+          currentUser = cred.user;
+        }
+
+        if (!currentUser) return;
+
+        // 1. Central Admin PIN Listener (Syncs across every phone & computer worldwide)
+        const pinDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'admin_config');
+        onSnapshot(pinDocRef, (snap) => {
+          if (snap.exists()) {
+            const data = snap.data();
+            if (data.adminPin) {
+              centralAdminPin = String(data.adminPin);
+            }
+          } else {
+            // First time initialization in central cloud
+            setDoc(pinDocRef, { adminPin: "1234", updatedAt: Date.now() }, { merge: true });
+            centralAdminPin = "1234";
+          }
+        }, (err) => {
+          console.warn("Cloud settings sync fallback to local:", err);
+        });
+
+        // 2. Realtime Registrations Sync
+        const regCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'registrations');
+        onSnapshot(regCollectionRef, (snap) => {
+          const items = [];
+          snap.forEach(docSnap => {
+            items.push({ id: docSnap.id, ...docSnap.data() });
+          });
+          // Sort in memory by time (avoid compound query indexing errors)
+          items.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+          allRegistrations = items;
+          refreshUI();
+        }, (err) => {
+          console.warn("Cloud registrations listener error:", err);
+        });
+
+      } catch (err) {
+        console.warn("Connecting with local persistence mode:", err);
+        // Fallback for standalone offline execution
+        const stored = localStorage.getItem('abs_cricket_teams_data');
+        if (stored) {
+          try { allRegistrations = JSON.parse(stored); } catch(e) {}
+        }
+        centralAdminPin = localStorage.getItem('abs_admin_pin') || '1234';
+        refreshUI();
       }
     }
 
@@ -1012,7 +1083,7 @@
     }
 
     // Public Registration Submission
-    function handleRegistrationSubmit(e) {
+    async function handleRegistrationSubmit(e) {
       e.preventDefault();
       
       const teamName = document.getElementById('regTeamName').value.trim();
@@ -1036,7 +1107,6 @@
       submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Submitting...';
 
       const registrationData = {
-        id: 'reg_' + Date.now(),
         teamName: teamName,
         captainName: capName,
         phone: phone,
@@ -1046,17 +1116,30 @@
         createdAt: Date.now()
       };
 
-      allRegistrations.push(registrationData);
-      saveToLocalStorage();
-      refreshUI();
+      try {
+        if (db && currentUser) {
+          const regCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'registrations');
+          await addDoc(regCollectionRef, registrationData);
+        } else {
+          registrationData.id = 'reg_' + Date.now();
+          allRegistrations.push(registrationData);
+          localStorage.setItem('abs_cricket_teams_data', JSON.stringify(allRegistrations));
+          refreshUI();
+        }
 
-      closeBookingModal();
-      document.getElementById('teamRegisterForm').reset();
-      removeSelectedScreenshot();
-      showToast(`Thank you! Registration for "${teamName}" submitted for verification.`);
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = '<span>Submit Registration</span><i class="fa-solid fa-arrow-right"></i>';
+        closeBookingModal();
+        document.getElementById('teamRegisterForm').reset();
+        removeSelectedScreenshot();
+        showToast(`Thank you! Registration for "${teamName}" submitted for verification.`);
+      } catch (err) {
+        console.error("Submission failed:", err);
+        showToast("Error submitting registration. Please try again.", true);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>Submit Registration</span><i class="fa-solid fa-arrow-right"></i>';
+      }
     }
+    window.handleRegistrationSubmit = handleRegistrationSubmit;
 
     // Admin List Render
     function renderAdminList() {
@@ -1155,6 +1238,7 @@
         tbody.appendChild(tr);
       });
     }
+    window.renderAdminList = renderAdminList;
 
     // Full High-Res Screenshot Viewer
     function viewFullScreenshot(id) {
@@ -1170,12 +1254,14 @@
       modal.classList.add('flex');
       playBeep(700, 'sine', 0.08);
     }
+    window.viewFullScreenshot = viewFullScreenshot;
 
     function closeImageViewer() {
       const modal = document.getElementById('imageViewerModal');
       modal.classList.add('hidden');
       modal.classList.remove('flex');
     }
+    window.closeImageViewer = closeImageViewer;
 
     function downloadScreenshot() {
       const src = document.getElementById('viewerImage').src;
@@ -1188,9 +1274,10 @@
       document.body.removeChild(link);
       playBeep(900, 'sine', 0.1);
     }
+    window.downloadScreenshot = downloadScreenshot;
 
-    // Update Status (Accept / Reject)
-    function updateRegistrationStatus(id, newStatus) {
+    // Update Status in Central Database (Accept / Reject)
+    async function updateRegistrationStatus(id, newStatus) {
       if (newStatus === 'accepted') {
         const currentAccepted = allRegistrations.filter(r => r.status === 'accepted' && r.id !== id).length;
         if (currentAccepted >= TOTAL_SLOTS) {
@@ -1199,25 +1286,46 @@
         }
       }
 
-      const item = allRegistrations.find(r => r.id === id);
-      if (item) item.status = newStatus;
-      saveToLocalStorage();
-      refreshUI();
-
-      showToast(newStatus === 'accepted' ? 'Team verified and slot confirmed!' : 'Application rejected.');
+      try {
+        if (db && currentUser) {
+          const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'registrations', id);
+          await updateDoc(docRef, { status: newStatus });
+        } else {
+          const item = allRegistrations.find(r => r.id === id);
+          if (item) item.status = newStatus;
+          localStorage.setItem('abs_cricket_teams_data', JSON.stringify(allRegistrations));
+          refreshUI();
+        }
+        showToast(newStatus === 'accepted' ? 'Team verified and slot confirmed in cloud!' : 'Application rejected in cloud.');
+      } catch (err) {
+        console.error("Failed to update status:", err);
+        showToast("Failed to update database.", true);
+      }
     }
+    window.updateRegistrationStatus = updateRegistrationStatus;
 
-    // Delete Registration
-    function deleteRegistration(id) {
+    // Delete Registration from Central Database
+    async function deleteRegistration(id) {
       if (!confirm("Are you sure you want to permanently delete this registration?")) return;
 
-      allRegistrations = allRegistrations.filter(r => r.id !== id);
-      saveToLocalStorage();
-      refreshUI();
-      showToast("Application deleted.");
+      try {
+        if (db && currentUser) {
+          const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'registrations', id);
+          await deleteDoc(docRef);
+        } else {
+          allRegistrations = allRegistrations.filter(r => r.id !== id);
+          localStorage.setItem('abs_cricket_teams_data', JSON.stringify(allRegistrations));
+          refreshUI();
+        }
+        showToast("Application deleted.");
+      } catch (err) {
+        console.error("Failed to delete document:", err);
+        showToast("Failed to delete from database.", true);
+      }
     }
+    window.deleteRegistration = deleteRegistration;
 
-    // Admin Authentication & Custom PIN Change
+    // Central Admin Authentication
     function handleAdminTabClick() {
       playBeep(650, 'sine', 0.08);
       if (isAdminLoggedIn) {
@@ -1226,6 +1334,7 @@
         openAdminLoginModal();
       }
     }
+    window.handleAdminTabClick = handleAdminTabClick;
 
     function openAdminLoginModal() {
       const modal = document.getElementById('adminLoginModal');
@@ -1234,19 +1343,21 @@
       document.getElementById('adminPinInput').value = '';
       document.getElementById('adminPinInput').focus();
     }
+    window.openAdminLoginModal = openAdminLoginModal;
 
     function closeAdminLoginModal() {
       const modal = document.getElementById('adminLoginModal');
       modal.classList.add('hidden');
       modal.classList.remove('flex');
     }
+    window.closeAdminLoginModal = closeAdminLoginModal;
 
     function handleAdminLogin(e) {
       e.preventDefault();
       const enteredPin = document.getElementById('adminPinInput').value.trim();
-      const currentSavedPin = localStorage.getItem('abs_admin_pin') || '1234';
 
-      if (enteredPin === currentSavedPin) {
+      // Central Cloud PIN verification
+      if (enteredPin === centralAdminPin) {
         isAdminLoggedIn = true;
         closeAdminLoginModal();
         document.getElementById('adminTabBtnText').innerText = 'Admin Dashboard';
@@ -1256,6 +1367,7 @@
         showToast("Incorrect PIN! Please enter the valid code.", true);
       }
     }
+    window.handleAdminLogin = handleAdminLogin;
 
     function logoutAdmin() {
       isAdminLoggedIn = false;
@@ -1263,6 +1375,7 @@
       switchView('public');
       showToast("Admin session ended.");
     }
+    window.logoutAdmin = logoutAdmin;
 
     function openChangePinModal() {
       const modal = document.getElementById('changePinModal');
@@ -1272,22 +1385,23 @@
       document.getElementById('newPinInput').value = '';
       document.getElementById('confirmNewPinInput').value = '';
     }
+    window.openChangePinModal = openChangePinModal;
 
     function closeChangePinModal() {
       const modal = document.getElementById('changePinModal');
       modal.classList.add('hidden');
       modal.classList.remove('flex');
     }
+    window.closeChangePinModal = closeChangePinModal;
 
-    function handleSaveNewPin(e) {
+    // Change Central Admin PIN (Saves to Central Cloud)
+    async function handleSaveNewPin(e) {
       e.preventDefault();
       const curr = document.getElementById('currPinInput').value.trim();
       const newP = document.getElementById('newPinInput').value.trim();
       const conf = document.getElementById('confirmNewPinInput').value.trim();
 
-      const savedPin = localStorage.getItem('abs_admin_pin') || '1234';
-
-      if (curr !== savedPin) {
+      if (curr !== centralAdminPin) {
         showToast("Current PIN is incorrect!", true);
         return;
       }
@@ -1300,10 +1414,22 @@
         return;
       }
 
-      localStorage.setItem('abs_admin_pin', newP);
-      closeChangePinModal();
-      showToast("PIN updated successfully! Use the new PIN on your next login.");
+      try {
+        if (db && currentUser) {
+          const pinDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'admin_config');
+          await setDoc(pinDocRef, { adminPin: newP, updatedAt: Date.now() }, { merge: true });
+        }
+        centralAdminPin = newP;
+        localStorage.setItem('abs_admin_pin', newP);
+
+        closeChangePinModal();
+        showToast("PIN updated successfully on cloud! No other device can use the old PIN.");
+      } catch (err) {
+        console.error("Failed to update central PIN:", err);
+        showToast("Failed to update PIN on cloud server.", true);
+      }
     }
+    window.handleSaveNewPin = handleSaveNewPin;
 
     // Print & Export Team List
     function exportTeamsPDF() {
@@ -1357,6 +1483,7 @@
       printWindow.focus();
       setTimeout(() => { printWindow.print(); }, 500);
     }
+    window.exportTeamsPDF = exportTeamsPDF;
 
     function switchView(view) {
       const publicView = document.getElementById('publicView');
@@ -1373,6 +1500,7 @@
       }
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+    window.switchView = switchView;
 
     function openBookingModal() {
       playBeep(720, 'sine', 0.08);
@@ -1380,12 +1508,14 @@
       modal.classList.remove('hidden');
       modal.classList.add('flex');
     }
+    window.openBookingModal = openBookingModal;
 
     function closeBookingModal() {
       const modal = document.getElementById('bookingModal');
       modal.classList.add('hidden');
       modal.classList.remove('flex');
     }
+    window.closeBookingModal = closeBookingModal;
 
     function copyNumber(num, name) {
       const textarea = document.createElement('textarea');
@@ -1398,6 +1528,7 @@
       } catch (err) {}
       document.body.removeChild(textarea);
     }
+    window.copyNumber = copyNumber;
 
     // Dynamic Countdown Timer
     const targetTournamentDate = new Date('2026-11-13T07:00:00+05:30').getTime();
@@ -1472,7 +1603,7 @@
     }
 
     window.onload = function() {
-      initStorage();
+      initCloudBackend();
       updateCountdown();
       setInterval(updateCountdown, 1000);
       setupParticles();
