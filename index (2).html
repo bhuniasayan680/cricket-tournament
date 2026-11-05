@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Agrañya Bidyut Sangha | One-Day Shorthand Cricket Tournament</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Firebase App & Firestore SDKs (Compat version for static single-file apps) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #070c18;
+      --card-bg: rgba(15, 23, 42, 0.85);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --primary-orange: #ff5e14;
+      --primary-glow: rgba(255, 94, 20, 0.35);
+      --electric-blue: #00d2ff;
+      --phonepe-purple: #5f259f;
+      --whatsapp-green: #25D366;
+      --emergency-red: #e53e3e;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Outfit', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(0, 210, 255, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(255, 94, 20, 0.1) 0%, transparent 40%);
+      color: var(--text-main);
+      min-height: 100vh;
+      line-height: 1.5;
+      padding-bottom: 90px;
+      overflow-x: hidden;
+    }
+
+    .bengali-font {
+      font-family: 'Hind Siliguri', sans-serif;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    /* Header Nav */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      background: rgba(7, 12, 24, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 1.1rem;
+      letter-spacing: 0.5px;
+      color: var(--text-main);
+    }
+
+    .brand-logo i {
+      color: var(--primary-orange);
+      font-size: 1.3rem;
+    }
+
+    .btn-admin-nav {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-admin-nav:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--primary-orange);
+    }
+
+    /* Hero Section */
+    .hero-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 24px 20px;
+      margin: 16px 0;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary-orange), var(--electric-blue));
+    }
+
+    .event-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 94, 20, 0.15);
+      color: var(--primary-orange);
+      border: 1px solid rgba(255, 94, 20, 0.3);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .hero-title {
+      font-size: 1.6rem;
+      font-weight: 900;
+      margin-bottom: 6px;
+      background: linear-gradient(135deg, #ffffff, #cbd5e1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.25;
+    }
+
+    .hero-subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 18px;
+    }
+
+    .meta-pills {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .meta-pill {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 8px 14px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .meta-pill i {
+      color: var(--electric-blue);
+    }
+
+    /* Slot Progress Bar */
+    .slot-counter-card {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .slot-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .slot-badge {
+      color: var(--primary-orange);
+      font-size: 1.1rem;
+    }
+
+    .progress-bar-wrap {
+      width: 100%;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--electric-blue), var(--primary-orange));
+      border-radius: 999px;
+      transition: width 0.4s ease;
+    }
+
+    /* Prize Cards */
+    .prizes-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 16px 0;
+    }
+
+    .prize-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 16px 12px;
+      text-align: center;
+      position: relative;
+    }
+
+    .prize-card.champion {
+      border-color: rgba(255, 215, 0, 0.3);
+      background: linear-gradient(180deg, rgba(255, 215, 0, 0.08) 0%, var(--card-bg) 100%);
+    }
+
+    .prize-card.runner-up {
+      border-color: rgba(192, 192, 192, 0.3);
+      background: linear-gradient(180deg, rgba(192, 192, 192, 0.08) 0%, var(--card-bg) 100%);
+    }
+
+    .prize-icon {
+      font-size: 1.8rem;
+      margin-bottom: 6px;
+    }
+
+    .prize-card.champion .prize-icon { color: #ffd700; }
+    .prize-card.runner-up .prize-icon { color: #c0c0c0; }
+
+    .prize-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+    }
+
+    .prize-money {
+      font-size: 1.3rem;
+      font-weight: 900;
+      margin-top: 4px;
+      color: #fff;
+    }
+
+    /* Section Cards */
+    .section-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.15rem;
+      font-weight: 800;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .section-header i {
+      color: var(--primary-orange);
+    }
+
+    /* Bengali Rules List */
+    .rules-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .rules-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #e2e8f0;
+    }
+
+    .rule-number {
+      background: rgba(255, 94, 20, 0.15);
+      color: var(--primary-orange);
+      font-weight: 700;
+      font-size: 0.85rem;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* Contacts Grid */
+    .contacts-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .contact-card {
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .contact-card.phonepe {
+      background: rgba(95, 37, 159, 0.15);
+      border: 1px solid rgba(95, 37, 159, 0.4);
+    }
+
+    .contact-card.whatsapp {
+      background: rgba(37, 211, 102, 0.12);
+      border: 1px solid rgba(37, 211, 102, 0.35);
+    }
+
+    .contact-card.emergency {
+      background: rgba(229, 62, 62, 0.15);
+      border: 1px solid rgba(229, 62, 62, 0.4);
+    }
+
+    .contact-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .contact-tag {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .contact-card.phonepe .contact-tag { color: #a855f7; }
+    .contact-card.whatsapp .contact-tag { color: #4ade80; }
+    .contact-card.emergency .contact-tag { color: #f87171; }
+
+    .contact-name {
+      font-weight: 800;
+      font-size: 1rem;
+      color: #fff;
+    }
+
+    .contact-number {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .contact-action-btn {
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-phonepe {
+      background: var(--phonepe-purple);
+      color: #fff;
+    }
+
+    .btn-whatsapp {
+      background: var(--whatsapp-green);
+      color: #fff;
+    }
+
+    .btn-emergency {
+      background: var(--emergency-red);
+      color: #fff;
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .form-input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .form-input:focus {
+      border-color: var(--primary-orange);
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      border: 2px dashed rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s ease;
+    }
+
+    .file-input-wrapper:hover {
+      border-color: var(--primary-orange);
+    }
+
+    .file-input-wrapper input[type="file"] {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .file-preview {
+      margin-top: 10px;
+      max-height: 140px;
+      border-radius: 8px;
+      display: none;
+      object-fit: cover;
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: linear-gradient(135deg, var(--primary-orange), #ff7836);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      padding: 14px;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 15px var(--primary-glow);
+      transition: all 0.2s ease;
+    }
+
+    .btn-submit:active {
+      transform: scale(0.98);
+    }
+
+    /* Live Registered Teams List */
+    .teams-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .team-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .team-item-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #fff;
+    }
+
+    .team-item-captain {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .confirmed-badge {
+      background: rgba(37, 211, 102, 0.15);
+      color: #4ade80;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 999px;
+    }
+
+    /* Fixed Bottom Action Bar for Mobile */
+    .mobile-bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(7, 12, 24, 0.92);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid var(--card-border);
+      padding: 10px 16px;
+      display: flex;
+      gap: 10px;
+      z-index: 100;
+    }
+
+    .bottom-btn-reg {
+      flex: 1;
+      background: var(--primary-orange);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 12px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .bottom-btn-admin {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    /* Admin Room Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 1000;
+    }
+
+    .modal-card {
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 24px;
+      position: relative;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .modal-title {
+      font-weight: 800;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-close-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.4rem;
+      cursor: pointer;
+    }
+
+    .admin-req-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .admin-req-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .btn-accept {
+      flex: 1;
+      background: #16a34a;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-reject {
+      flex: 1;
+      background: #dc2626;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-view-proof {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky Top Header -->
+  <header>
+    <div class="brand-logo">
+      <i class="fa-solid fa-baseball-bat-ball"></i>
+      <span>AGRAÑYA BIDYUT SANGHA</span>
+    </div>
+    <button class="btn-admin-nav" onclick="openAdminModal()">
+      <i class="fa-solid fa-lock"></i>
+      <span>Admin Room</span>
+    </button>
+  </header>
+
+  <div class="container">
+    <!-- Hero / Tournament Overview -->
+    <div class="hero-card">
+      <div class="event-badge">
+        <i class="fa-regular fa-calendar-check"></i> 13 Nov 2026 (Friday)
+      </div>
+      <h1 class="hero-title">ONE-DAY SHORTHAND CRICKET TOURNAMENT</h1>
+      <p class="hero-subtitle">Organized by Agrañya Bidyut Sangha • 12 Teams Only</p>
+      
+      <div class="meta-pills">
+        <div class="meta-pill">
+          <i class="fa-solid fa-indian-rupee-sign"></i>
+          <span>Entry Fee: <strong>₹500</strong></span>
+        </div>
+        <div class="meta-pill">
+          <i class="fa-regular fa-clock"></i>
+          <span>Reporting: <strong>7:00 AM</strong></span>
+        </div>
+      </div>
+
+      <!-- Live Slot Tracker -->
+      <div class="slot-counter-card">
+        <div class="slot-meta">
+          <span>Registered Slots</span>
+          <span class="slot-badge"><span id="confirmedSlotCount">0</span> / 12 Teams</span>
+        </div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" id="slotProgressBar"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Prize Section -->
+    <div class="prizes-grid">
+      <div class="prize-card champion">
+        <div class="prize-icon"><i class="fa-solid fa-trophy"></i></div>
+        <div class="prize-label">Champions</div>
+        <div class="prize-money">₹4,000 + Trophy</div>
+      </div>
+      <div class="prize-card runner-up">
+        <div class="prize-icon"><i class="fa-solid fa-medal"></i></div>
+        <div class="prize-label">Runners-Up</div>
+        <div class="prize-money">₹2,000 + Trophy</div>
+      </div>
+    </div>
+
+    <!-- Section: Bengali Official Rules Verbatim -->
+    <div class="section-card">
+      <div class="section-header">
+        <i class="fa-solid fa-file-lines"></i>
+        <span>অফিসিয়াল নিয়মাবলী (Rules)</span>
+      </div>
+      <ul class="rules-list bengali-font">
+        <li><span class="rule-number">১</span> <span>খেলাটি ১২টি দলের মধ্যে সীমাবদ্ধ থাকবে।</span></li>
+        <li><span class="rule-number">২</span> <span>মাঠের মধ্যে আম্পায়ারের সিদ্ধান্ত চূড়ান্ত।</span></li>
+        <li><span class="rule-number">৩</span> <span>প্রতিটি ম্যাচে ম্যান অব দ্য ম্যাচ থাকবে।</span></li>
+        <li><span class="rule-number">৪</span> <span>মাঠে আসার নির্ধারিত সময় সকাল ৭টার মধ্যে; উপস্থিত থাকতে হবে।</span></li>
+        <li><span class="rule-number">৫</span> <span>টিম কমলে বা বাড়লে পুরস্কার পরিবর্তন হতে পারে।</span></li>
+        <li><span class="rule-number">৬</span> <span>প্রাকৃতিক দুর্যোগের কারণে দিন পরিবর্তন হতে পারে।</span></li>
+        <li><span class="rule-number">৭</span> <span>বাকি নিয়মাবলী মাঠে জানানো হবে।</span></li>
+      </ul>
+    </div>
+
+    <!-- Section: Official Contacts -->
+    <div class="section-card">
+      <div class="section-header">
+        <i class="fa-solid fa-address-book"></i>
+        <span>Official Contacts & Payment</span>
+      </div>
+      <div class="contacts-grid">
+        <!-- PhonePe -->
+        <div class="contact-card phonepe">
+          <div class="contact-info">
+            <span class="contact-tag"><i class="fa-solid fa-wallet"></i> PhonePe Entry Fee</span>
+            <span class="contact-name">Sreyam Bhunia</span>
+            <span class="contact-number">+91 83898 33503</span>
+          </div>
+          <button class="contact-action-btn btn-phonepe" onclick="copyToClipboard('8389833503', 'PhonePe Number Copied!')">
+            <i class="fa-regular fa-copy"></i> Copy
+          </button>
+        </div>
+
+        <!-- WhatsApp -->
+        <div class="contact-card whatsapp">
+          <div class="contact-info">
+            <span class="contact-tag"><i class="fa-brands fa-whatsapp"></i> WhatsApp Inquiry</span>
+            <span class="contact-name">Sayan Bhunia</span>
+            <span class="contact-number">+91 97334 23824</span>
+          </div>
+          <a class="contact-action-btn btn-whatsapp" href="https://wa.me/919733423824?text=Hello%20Sayan,%20I%20want%20to%20inquire%20about%20the%20Cricket%20Tournament." target="_blank">
+            <i class="fa-brands fa-whatsapp"></i> Chat
+          </a>
+        </div>
+
+        <!-- Emergency -->
+        <div class="contact-card emergency">
+          <div class="contact-info">
+            <span class="contact-tag"><i class="fa-solid fa-triangle-exclamation"></i> Emergency / Ground</span>
+            <span class="contact-name">Animesh Bhunia</span>
+            <span class="contact-number">+91 97759 13174</span>
+          </div>
+          <a class="contact-action-btn btn-emergency" href="tel:+919775913174">
+            <i class="fa-solid fa-phone"></i> Call
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section: Registration Form -->
+    <div class="section-card" id="registrationSection">
+      <div class="section-header">
+        <i class="fa-solid fa-pen-to-square"></i>
+        <span>Register Your Team</span>
+      </div>
+      <form id="teamRegisterForm" onsubmit="handleRegistrationSubmit(event)">
+        <div class="form-group">
+          <label class="form-label">Team Name *</label>
+          <input type="text" id="teamNameInput" class="form-input" placeholder="Enter full team name" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Captain Name *</label>
+          <input type="text" id="captainNameInput" class="form-input" placeholder="Captain's full name" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">WhatsApp Contact Number *</label>
+          <input type="tel" id="contactNumberInput" class="form-input" placeholder="10-digit mobile number" pattern="[0-9]{10}" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Payment Screenshot (₹500 via PhonePe) *</label>
+          <div class="file-input-wrapper">
+            <i class="fa-solid fa-cloud-arrow-up" style="font-size: 1.8rem; color: var(--primary-orange); margin-bottom: 6px;"></i>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">Tap here to upload payment screenshot</p>
+            <input type="file" id="proofFileInput" accept="image/*" onchange="previewScreenshot(event)" required>
+            <img id="screenshotPreview" class="file-preview" alt="Proof Preview">
+          </div>
+        </div>
+        <button type="submit" class="btn-submit" id="submitRegBtn">
+          <i class="fa-solid fa-paper-plane"></i>
+          <span>Submit Booking</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Section: Confirmed Teams -->
+    <div class="section-card">
+      <div class="section-header">
+        <i class="fa-solid fa-list-check"></i>
+        <span>Confirmed Teams (<span id="confirmedCountLabel">0</span>/12)</span>
+      </div>
+      <div class="teams-list" id="publicTeamsList">
+        <div style="text-align: center; color: var(--text-muted); font-size: 0.9rem; padding: 12px;">
+          No teams approved yet. Register now to secure your slot!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Fixed Bottom Action Bar -->
+  <div class="mobile-bottom-bar">
+    <button class="bottom-btn-reg" onclick="scrollToRegister()">
+      <i class="fa-solid fa-bolt"></i> Register Team
+    </button>
+    <button class="bottom-btn-admin" onclick="openAdminModal()">
+      <i class="fa-solid fa-lock"></i> Admin
+    </button>
+  </div>
+
+  <!-- Admin Modal -->
+  <div class="modal-overlay" id="adminModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-shield-halved" style="color: var(--primary-orange);"></i>
+          <span>Admin Room</span>
+        </div>
+        <button class="modal-close-btn" onclick="closeAdminModal()">&times;</button>
+      </div>
+
+      <!-- PIN Login View -->
+      <div id="adminLoginView">
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 12px;">Enter master security PIN to manage team bookings.</p>
+        <div class="form-group">
+          <input type="password" id="adminPinInput" class="form-input" placeholder="Enter PIN" maxlength="10">
+        </div>
+        <button class="btn-submit" onclick="verifyAdminPin()">
+          <i class="fa-solid fa-key"></i> Unlock Dashboard
+        </button>
+      </div>
+
+      <!-- Dashboard View -->
+      <div id="adminDashboardView" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <button style="background: rgba(255,255,255,0.08); border: 1px solid var(--card-border); color: #fff; padding: 6px 12px; border-radius: 8px; cursor: pointer;" onclick="togglePinChangeForm()">
+            <i class="fa-solid fa-key"></i> Change PIN
+          </button>
+          <button style="background: rgba(229,62,62,0.15); border: 1px solid rgba(229,62,62,0.4); color: #f87171; padding: 6px 12px; border-radius: 8px; cursor: pointer;" onclick="adminLogout()">
+            <i class="fa-solid fa-power-off"></i> Logout
+          </button>
+        </div>
+
+        <!-- Change PIN Subform -->
+        <div id="changePinForm" style="display: none; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 12px; margin-bottom: 16px;">
+          <h4 style="font-size: 0.9rem; margin-bottom: 8px;">Update Master Cloud PIN</h4>
+          <input type="password" id="newPinInput" class="form-input" placeholder="New PIN (4-8 digits)" style="margin-bottom: 8px;">
+          <button class="btn-submit" style="padding: 8px;" onclick="saveNewAdminPin()">Save New PIN</button>
+        </div>
+
+        <h3 style="font-size: 1rem; margin-bottom: 10px;">Pending & Approved Registrations</h3>
+        <div id="adminRequestsContainer">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 1. Firebase Live Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyB6d-1s-S6KiLJW5bGDO8tp40orPEPBIgo",
+      authDomain: "agrania-cricket.firebaseapp.com",
+      projectId: "agrania-cricket",
+      storageBucket: "agrania-cricket.firebasestorage.app",
+      messagingSenderId: "934570039832",
+      appId: "1:934570039832:web:17cff0cb365d671e18c16d",
+      measurementId: "G-PG1JH855ZC"
+    };
+
+    // Web3Forms Key for Instant Email Alerts on phone
+    const WEB3FORMS_ACCESS_KEY = "e5a23464-9733-4632-93b6-427b21917323";
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let registrations = [];
+    let currentAdminPin = "1234"; // Default fallback until fetched from cloud
+    let base64Screenshot = "";
+
+    // 2. Realtime Listener for Admin PIN
+    db.collection("settings").doc("admin_config").onSnapshot(doc => {
+      if (doc.exists && doc.data().pin) {
+        currentAdminPin = doc.data().pin;
+      } else {
+        // Initialize if not present
+        db.collection("settings").doc("admin_config").set({ pin: "1234" });
+      }
+    });
+
+    // 3. Realtime Listener for Team Registrations
+    db.collection("registrations").onSnapshot(snapshot => {
+      registrations = [];
+      snapshot.forEach(doc => {
+        registrations.push({ id: doc.id, ...doc.data() });
+      });
+      renderUI();
+    }, error => {
+      console.warn("Firestore access error:", error);
+    });
+
+    function renderUI() {
+      const confirmedTeams = registrations.filter(r => r.status === "approved");
+      const count = confirmedTeams.length;
+
+      document.getElementById('confirmedSlotCount').innerText = count;
+      document.getElementById('confirmedCountLabel').innerText = count;
+      document.getElementById('slotProgressBar').style.width = (count / 12 * 100) + '%';
+
+      // Render Public List
+      const publicList = document.getElementById('publicTeamsList');
+      if (confirmedTeams.length === 0) {
+        publicList.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 0.9rem; padding: 12px;">No teams approved yet. Register now to secure your slot!</div>`;
+      } else {
+        publicList.innerHTML = confirmedTeams.map((team, idx) => `
+          <div class="team-item">
+            <div>
+              <div class="team-item-title">${idx + 1}. ${escapeHtml(team.teamName)}</div>
+              <div class="team-item-captain"><i class="fa-regular fa-user"></i> Captain: ${escapeHtml(team.captainName)}</div>
+            </div>
+            <span class="confirmed-badge"><i class="fa-solid fa-circle-check"></i> Confirmed</span>
+          </div>
+        `).join('');
+      }
+
+      // Render Admin Dashboard list if unlocked
+      renderAdminRequests();
+    }
+
+    // Image preview & base64 conversion
+    function previewScreenshot(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        base64Screenshot = e.target.result;
+        const img = document.getElementById('screenshotPreview');
+        img.src = base64Screenshot;
+        img.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Form Submission: Firebase + Background Web3Forms Notification
+    async function handleRegistrationSubmit(e) {
+      e.preventDefault();
+      const submitBtn = document.getElementById('submitRegBtn');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Submitting...`;
+
+      const teamName = document.getElementById('teamNameInput').value.trim();
+      const captainName = document.getElementById('captainNameInput').value.trim();
+      const contactNumber = document.getElementById('contactNumberInput').value.trim();
+
+      const newRegistration = {
+        teamName,
+        captainName,
+        contactNumber,
+        screenshot: base64Screenshot || "",
+        status: "pending",
+        timestamp: new Date().toISOString()
+      };
+
+      try {
+        // Save to Firebase Firestore
+        await db.collection("registrations").add(newRegistration);
+
+        // Background Email Notification via Web3Forms (does not block user)
+        fetch("https://api.web3forms.com/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            access_key: WEB3FORMS_ACCESS_KEY,
+            subject: "🏏 New Tournament Registration: " + teamName,
+            from_name: "Agrañya Cricket Portal",
+            message: `New team booking submitted!\n\nTeam: ${teamName}\nCaptain: ${captainName}\nPhone: ${contactNumber}\nTime: ${new Date().toLocaleString()}`
+          })
+        }).catch(err => console.log("Alert ping error:", err));
+
+        alert("Registration submitted successfully! You will be confirmed once payment proof is verified.");
+        document.getElementById('teamRegisterForm').reset();
+        document.getElementById('screenshotPreview').style.display = 'none';
+        base64Screenshot = "";
+      } catch (err) {
+        alert("Submission failed. Please check internet connection.");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> <span>Submit Booking</span>`;
+      }
+    }
+
+    // Admin Handlers
+    function openAdminModal() {
+      document.getElementById('adminModal').style.display = 'flex';
+    }
+
+    function closeAdminModal() {
+      document.getElementById('adminModal').style.display = 'none';
+    }
+
+    function verifyAdminPin() {
+      const enteredPin = document.getElementById('adminPinInput').value;
+      if (enteredPin === currentAdminPin) {
+        document.getElementById('adminLoginView').style.display = 'none';
+        document.getElementById('adminDashboardView').style.display = 'block';
+        renderAdminRequests();
+      } else {
+        alert("Incorrect Admin PIN!");
+      }
+    }
+
+    function adminLogout() {
+      document.getElementById('adminPinInput').value = "";
+      document.getElementById('adminLoginView').style.display = 'block';
+      document.getElementById('adminDashboardView').style.display = 'none';
+    }
+
+    function togglePinChangeForm() {
+      const form = document.getElementById('changePinForm');
+      form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    }
+
+    async function saveNewAdminPin() {
+      const newPin = document.getElementById('newPinInput').value.trim();
+      if (newPin.length < 4) {
+        alert("PIN must be at least 4 digits.");
+        return;
+      }
+      try {
+        await db.collection("settings").doc("admin_config").set({ pin: newPin });
+        alert("Admin PIN updated successfully across all devices!");
+        document.getElementById('newPinInput').value = "";
+        togglePinChangeForm();
+      } catch (e) {
+        alert("Failed to update PIN in database: " + e.message);
+      }
+    }
+
+    function renderAdminRequests() {
+      const container = document.getElementById('adminRequestsContainer');
+      if (!container) return;
+
+      if (registrations.length === 0) {
+        container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem;">No registrations found.</p>`;
+        return;
+      }
+
+      container.innerHTML = registrations.map(req => `
+        <div class="admin-req-card">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+              <strong style="color: #fff; font-size: 1rem;">${escapeHtml(req.teamName)}</strong>
+              <div style="font-size: 0.85rem; color: var(--text-muted);">Captain: ${escapeHtml(req.captainName)}</div>
+              <div style="font-size: 0.85rem; color: var(--text-muted);">Phone: <a href="tel:${escapeHtml(req.contactNumber)}" style="color: var(--electric-blue);">${escapeHtml(req.contactNumber)}</a></div>
+            </div>
+            <span style="font-size: 0.75rem; font-weight: 700; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; background: ${req.status === 'approved' ? 'rgba(34,197,94,0.2)' : 'rgba(234,179,8,0.2)'}; color: ${req.status === 'approved' ? '#4ade80' : '#facc15'};">
+              ${req.status}
+            </span>
+          </div>
+
+          ${req.screenshot ? `
+            <button class="btn-view-proof" onclick="viewScreenshot('${req.screenshot}')">
+              <i class="fa-regular fa-image"></i> View Payment Proof
+            </button>
+          ` : '<p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 6px;">No screenshot attached</p>'}
+
+          <div class="admin-req-actions">
+            ${req.status !== 'approved' ? `<button class="btn-accept" onclick="updateStatus('${req.id}', 'approved')"><i class="fa-solid fa-check"></i> Accept</button>` : ''}
+            <button class="btn-reject" onclick="deleteRegistration('${req.id}')"><i class="fa-solid fa-trash"></i> Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function updateStatus(id, newStatus) {
+      const confirmedCount = registrations.filter(r => r.status === "approved").length;
+      if (newStatus === "approved" && confirmedCount >= 12) {
+        alert("Maximum 12 slots already filled!");
+        return;
+      }
+      await db.collection("registrations").doc(id).update({ status: newStatus });
+    }
+
+    async function deleteRegistration(id) {
+      if (confirm("Are you sure you want to remove this registration?")) {
+        await db.collection("registrations").doc(id).delete();
+      }
+    }
+
+    function viewScreenshot(base64) {
+      const win = window.open("");
+      win.document.write(`<img src="${base64}" style="max-width:100%; height:auto;" />`);
+    }
+
+    function copyToClipboard(text, alertMsg) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert(alertMsg);
+      });
+    }
+
+    function scrollToRegister() {
+      document.getElementById('registrationSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function escapeHtml(text) {
+      if (!text) return "";
+      return text.replace(/[&<>"']/g, function(m) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+      });
+    }
+  </script>
+</body>
+</html>
