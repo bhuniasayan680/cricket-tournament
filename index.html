@@ -797,44 +797,40 @@
     <p class="mt-1 text-[11px] text-slate-600">Club Grounds • Friday, 13 November 2026</p>
   </footer>
 
-  <!-- Web Audio & App State Logic -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { 
-      getFirestore, 
-      doc, 
-      getDoc, 
-      setDoc, 
-      updateDoc, 
-      deleteDoc, 
-      onSnapshot, 
-      collection, 
-      addDoc 
-    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+  <!-- Firebase Live SDKs (Compat bundle for guaranteed static CDN execution) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
-    // Application ID and Centralized Cloud Configuration
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'agrania-bidyut-cricket-2026';
-    
-    // Default fallback Firebase config if environment variables aren't injected
-    const firebaseConfig = typeof __firebase_config !== 'undefined' 
-      ? JSON.parse(__firebase_config) 
-      : {
-          apiKey: "AIzaSyDummyKeyForFallbackLocalSync123",
-          authDomain: "agrania-bidyut-cricket.firebaseapp.com",
-          projectId: "agrania-bidyut-cricket",
-          storageBucket: "agrania-bidyut-cricket.appspot.com",
-          messagingSenderId: "1029384756",
-          appId: "1:1029384756:web:abcdef123456"
-        };
+  <script>
+    // Live Firebase Project Configuration provided by user
+    const firebaseConfig = {
+      apiKey: "AIzaSyB6d-1s-S6KiLJW5bGDO8tp40orPEPBIgo",
+      authDomain: "agrania-cricket.firebaseapp.com",
+      projectId: "agrania-cricket",
+      storageBucket: "agrania-cricket.firebasestorage.app",
+      messagingSenderId: "934570039832",
+      appId: "1:934570039832:web:17cff0cb365d671e18c16d",
+      measurementId: "G-PG1JH855ZC"
+    };
 
-    let app, auth, db;
-    let currentUser = null;
-    let centralAdminPin = "1234"; // Initial fallback until loaded from cloud
+    // Initialize Firebase and Firestore instances
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-    // Audio FX generator
+    // Central Firestore Document References
+    const adminConfigDocRef = db.collection('settings').doc('admin_config');
+    const registrationsColRef = db.collection('registrations');
+
+    // Central Security & State variables
+    let currentAdminPin = "1234"; // default until synced with cloud
+    window.allRegistrations = [];
+    window.isAdminLoggedIn = false;
+    window.selectedScreenshotBase64 = null;
+    const TOTAL_SLOTS = 12;
+
+    // Web Audio API Sound Effects
     const audioCtx = (window.AudioContext || window.webkitAudioContext) ? new (window.AudioContext || window.webkitAudioContext)() : null;
-    function playBeep(freq = 600, type = 'sine', duration = 0.1) {
+    window.playBeep = function(freq = 600, type = 'sine', duration = 0.1) {
       if (!audioCtx) return;
       try {
         if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -849,22 +845,16 @@
         osc.start();
         osc.stop(audioCtx.currentTime + duration);
       } catch (e) {}
-    }
+    };
 
-    // Application state
-    const TOTAL_SLOTS = 12;
-    let allRegistrations = [];
-    let isAdminLoggedIn = false;
-    let selectedScreenshotBase64 = null;
-
-    // Toast helper
+    // Toast Notifications
     let toastTimeout;
-    function showToast(message, isWarning = false) {
+    window.showToast = function(message, isWarning = false) {
       const toast = document.getElementById('toast');
       const toastMsg = document.getElementById('toastMsg');
       const toastIcon = document.getElementById('toastIcon');
 
-      playBeep(isWarning ? 320 : 780, isWarning ? 'sawtooth' : 'sine', 0.15);
+      window.playBeep(isWarning ? 320 : 780, isWarning ? 'sawtooth' : 'sine', 0.15);
 
       toastMsg.innerText = message;
       if (isWarning) {
@@ -883,16 +873,15 @@
         toast.style.transform = 'translateY(6rem)';
         toast.style.opacity = '0';
       }, 3500);
-    }
-    window.showToast = showToast;
+    };
 
-    // Client-side image compression
-    function handleScreenshotSelect(e) {
+    // Client-side Image Compression (Safe for Firestore Base64 limits)
+    window.handleScreenshotSelect = function(e) {
       const file = e.target.files[0];
       if (!file) return;
 
       if (!file.type.startsWith('image/')) {
-        showToast("Please upload a valid image file (JPG, PNG, WebP).", true);
+        window.showToast("Please upload a valid image file (JPG, PNG, WebP).", true);
         return;
       }
 
@@ -918,110 +907,83 @@
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
 
-          selectedScreenshotBase64 = canvas.toDataURL('image/jpeg', 0.75);
+          window.selectedScreenshotBase64 = canvas.toDataURL('image/jpeg', 0.68);
 
-          document.getElementById('screenshotPreviewImg').src = selectedScreenshotBase64;
+          document.getElementById('screenshotPreviewImg').src = window.selectedScreenshotBase64;
           document.getElementById('uploadPrompt').classList.add('hidden');
           document.getElementById('previewContainer').classList.remove('hidden');
           document.getElementById('previewContainer').classList.add('flex');
-          playBeep(880, 'sine', 0.1);
+          window.playBeep(880, 'sine', 0.1);
         };
         img.src = event.target.result;
       };
       reader.readAsDataURL(file);
-    }
-    window.handleScreenshotSelect = handleScreenshotSelect;
+    };
 
-    function removeSelectedScreenshot(e) {
+    window.removeSelectedScreenshot = function(e) {
       if (e) e.stopPropagation();
-      selectedScreenshotBase64 = null;
+      window.selectedScreenshotBase64 = null;
       document.getElementById('regScreenshotInput').value = '';
       document.getElementById('screenshotPreviewImg').src = '';
       document.getElementById('previewContainer').classList.add('hidden');
       document.getElementById('previewContainer').classList.remove('flex');
       document.getElementById('uploadPrompt').classList.remove('hidden');
-      playBeep(450, 'sine', 0.08);
-    }
-    window.removeSelectedScreenshot = removeSelectedScreenshot;
+      window.playBeep(450, 'sine', 0.08);
+    };
 
-    // --- CLOUD DATABASE INITIALIZATION & REALTIME LISTENERS ---
-    async function initCloudBackend() {
-      try {
-        app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
-        db = getFirestore(app);
-
-        // Sign In securely before listening to Firestore
-        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-          const cred = await signInWithCustomToken(auth, __initial_auth_token);
-          currentUser = cred.user;
-        } else {
-          const cred = await signInAnonymously(auth);
-          currentUser = cred.user;
-        }
-
-        if (!currentUser) return;
-
-        // 1. Central Admin PIN Listener (Syncs across every phone & computer worldwide)
-        const pinDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'admin_config');
-        onSnapshot(pinDocRef, (snap) => {
-          if (snap.exists()) {
-            const data = snap.data();
-            if (data.adminPin) {
-              centralAdminPin = String(data.adminPin);
-            }
-          } else {
-            // First time initialization in central cloud
-            setDoc(pinDocRef, { adminPin: "1234", updatedAt: Date.now() }, { merge: true });
-            centralAdminPin = "1234";
+    // 1. Synchronize Central Admin PIN with Firestore
+    function listenCentralAdminPIN() {
+      adminConfigDocRef.onSnapshot((docSnapshot) => {
+        if (docSnapshot.exists) {
+          const data = docSnapshot.data();
+          if (data && data.pin) {
+            currentAdminPin = String(data.pin);
           }
-        }, (err) => {
-          console.warn("Cloud settings sync fallback to local:", err);
-        });
-
-        // 2. Realtime Registrations Sync
-        const regCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'registrations');
-        onSnapshot(regCollectionRef, (snap) => {
-          const items = [];
-          snap.forEach(docSnap => {
-            items.push({ id: docSnap.id, ...docSnap.data() });
-          });
-          // Sort in memory by time (avoid compound query indexing errors)
-          items.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
-          allRegistrations = items;
-          refreshUI();
-        }, (err) => {
-          console.warn("Cloud registrations listener error:", err);
-        });
-
-      } catch (err) {
-        console.warn("Connecting with local persistence mode:", err);
-        // Fallback for standalone offline execution
-        const stored = localStorage.getItem('abs_cricket_teams_data');
-        if (stored) {
-          try { allRegistrations = JSON.parse(stored); } catch(e) {}
+        } else {
+          // Document does not exist yet; initialize default PIN in Firestore
+          adminConfigDocRef.set({
+            pin: "1234",
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          }).then(() => {
+            currentAdminPin = "1234";
+          }).catch(err => console.error("Initial PIN write error:", err));
         }
-        centralAdminPin = localStorage.getItem('abs_admin_pin') || '1234';
-        refreshUI();
-      }
+      }, (error) => {
+        console.error("Central PIN listener error:", error);
+      });
     }
 
-    function refreshUI() {
-      renderPublicConfirmedTeams();
-      if (isAdminLoggedIn) {
-        renderAdminList();
-      }
+    // 2. Real-time Registrations Sync with Firestore
+    function listenRealtimeRegistrations() {
+      registrationsColRef.onSnapshot((querySnapshot) => {
+        const teams = [];
+        querySnapshot.forEach((doc) => {
+          teams.push({ id: doc.id, ...doc.data() });
+        });
+
+        // In-memory sort by submission time
+        teams.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        window.allRegistrations = teams;
+
+        window.renderPublicConfirmedTeams();
+        if (window.isAdminLoggedIn) {
+          window.renderAdminList();
+        }
+      }, (error) => {
+        console.error("Registrations sync error:", error);
+      });
     }
 
-    // Public Confirmed Teams render
-    function renderPublicConfirmedTeams() {
+    // Render Public Slot Board
+    window.renderPublicConfirmedTeams = function() {
       const tbody = document.getElementById('confirmedTeamsTableBody');
+      if (!tbody) return;
       tbody.innerHTML = '';
 
-      const acceptedTeams = allRegistrations.filter(r => r.status === 'accepted');
+      const acceptedTeams = window.allRegistrations.filter(r => r.status === 'accepted');
       const bookedCount = acceptedTeams.length;
       const leftCount = Math.max(0, TOTAL_SLOTS - bookedCount);
-      const pendingCount = allRegistrations.filter(r => r.status === 'pending').length;
+      const pendingCount = window.allRegistrations.filter(r => r.status === 'pending').length;
 
       document.getElementById('bookedSlotsCount').innerText = bookedCount;
       document.getElementById('remainingSlotsBadge').innerText = leftCount;
@@ -1080,10 +1042,10 @@
         `;
         tbody.appendChild(tr);
       }
-    }
+    };
 
-    // Public Registration Submission
-    async function handleRegistrationSubmit(e) {
+    // Public Registration Submission directly to Cloud Firestore
+    window.handleRegistrationSubmit = async function(e) {
       e.preventDefault();
       
       const teamName = document.getElementById('regTeamName').value.trim();
@@ -1091,72 +1053,63 @@
       const phone = document.getElementById('regPhone').value.trim();
       const loc = document.getElementById('regLocation').value.trim();
 
-      if (!selectedScreenshotBase64) {
-        showToast("Please upload the PhonePe ₹500 payment receipt screenshot.", true);
+      if (!window.selectedScreenshotBase64) {
+        window.showToast("Please upload the PhonePe ₹500 payment receipt screenshot.", true);
         return;
       }
 
-      const acceptedCount = allRegistrations.filter(r => r.status === 'accepted').length;
+      const acceptedCount = window.allRegistrations.filter(r => r.status === 'accepted').length;
       if (acceptedCount >= TOTAL_SLOTS) {
-        showToast("Sorry! All 12 tournament slots are fully booked.", true);
+        window.showToast("Sorry! All 12 tournament slots are fully booked.", true);
         return;
       }
 
       const submitBtn = document.getElementById('submitBtn');
       submitBtn.disabled = true;
-      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Submitting...';
-
-      const registrationData = {
-        teamName: teamName,
-        captainName: capName,
-        phone: phone,
-        location: loc,
-        screenshot: selectedScreenshotBase64,
-        status: 'pending',
-        createdAt: Date.now()
-      };
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Saving to Cloud...';
 
       try {
-        if (db && currentUser) {
-          const regCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'registrations');
-          await addDoc(regCollectionRef, registrationData);
-        } else {
-          registrationData.id = 'reg_' + Date.now();
-          allRegistrations.push(registrationData);
-          localStorage.setItem('abs_cricket_teams_data', JSON.stringify(allRegistrations));
-          refreshUI();
-        }
+        await registrationsColRef.add({
+          teamName: teamName,
+          captainName: capName,
+          phone: phone,
+          location: loc,
+          screenshot: window.selectedScreenshotBase64,
+          status: 'pending',
+          createdAt: Date.now()
+        });
 
-        closeBookingModal();
+        window.closeBookingModal();
         document.getElementById('teamRegisterForm').reset();
-        removeSelectedScreenshot();
-        showToast(`Thank you! Registration for "${teamName}" submitted for verification.`);
+        window.removeSelectedScreenshot();
+        window.showToast(`Registration for "${teamName}" submitted for review!`);
       } catch (err) {
-        console.error("Submission failed:", err);
-        showToast("Error submitting registration. Please try again.", true);
+        console.error("Error submitting team:", err);
+        window.showToast("Submission failed. Please check connection and try again.", true);
       } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<span>Submit Registration</span><i class="fa-solid fa-arrow-right"></i>';
       }
-    }
-    window.handleRegistrationSubmit = handleRegistrationSubmit;
+    };
 
-    // Admin List Render
-    function renderAdminList() {
-      const filter = document.getElementById('adminFilter').value;
+    // Render Admin List & Action Controls
+    window.renderAdminList = function() {
+      const filterEl = document.getElementById('adminFilter');
+      const filter = filterEl ? filterEl.value : 'all';
       const tbody = document.getElementById('adminTableBody');
+      if (!tbody) return;
       tbody.innerHTML = '';
 
-      let filtered = allRegistrations;
+      let filtered = window.allRegistrations;
       if (filter !== 'all') {
-        filtered = allRegistrations.filter(r => r.status === filter);
+        filtered = window.allRegistrations.filter(r => r.status === filter);
       }
 
-      const acceptedCount = allRegistrations.filter(r => r.status === 'accepted').length;
-      const pendingCount = allRegistrations.filter(r => r.status === 'pending').length;
-      const rejectedCount = allRegistrations.filter(r => r.status === 'rejected').length;
+      const acceptedCount = window.allRegistrations.filter(r => r.status === 'accepted').length;
+      const pendingCount = window.allRegistrations.filter(r => r.status === 'pending').length;
+      const rejectedCount = window.allRegistrations.filter(r => r.status === 'rejected').length;
 
-      document.getElementById('admTotalCount').innerText = allRegistrations.length;
+      document.getElementById('admTotalCount').innerText = window.allRegistrations.length;
       document.getElementById('admAcceptedCount').innerText = `${acceptedCount} / 12`;
       document.getElementById('admPendingCount').innerText = pendingCount;
       document.getElementById('admRejectedCount').innerText = rejectedCount;
@@ -1237,12 +1190,11 @@
         `;
         tbody.appendChild(tr);
       });
-    }
-    window.renderAdminList = renderAdminList;
+    };
 
     // Full High-Res Screenshot Viewer
-    function viewFullScreenshot(id) {
-      const item = allRegistrations.find(r => r.id === id);
+    window.viewFullScreenshot = function(id) {
+      const item = window.allRegistrations.find(r => r.id === id);
       if (!item || !item.screenshot) return;
 
       document.getElementById('viewerTeamTitle').innerText = `${item.teamName} - Payment Proof`;
@@ -1252,18 +1204,16 @@
       const modal = document.getElementById('imageViewerModal');
       modal.classList.remove('hidden');
       modal.classList.add('flex');
-      playBeep(700, 'sine', 0.08);
-    }
-    window.viewFullScreenshot = viewFullScreenshot;
+      window.playBeep(700, 'sine', 0.08);
+    };
 
-    function closeImageViewer() {
+    window.closeImageViewer = function() {
       const modal = document.getElementById('imageViewerModal');
       modal.classList.add('hidden');
       modal.classList.remove('flex');
-    }
-    window.closeImageViewer = closeImageViewer;
+    };
 
-    function downloadScreenshot() {
+    window.downloadScreenshot = function() {
       const src = document.getElementById('viewerImage').src;
       if (!src) return;
       const link = document.createElement('a');
@@ -1272,170 +1222,155 @@
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      playBeep(900, 'sine', 0.1);
-    }
-    window.downloadScreenshot = downloadScreenshot;
+      window.playBeep(900, 'sine', 0.1);
+    };
 
-    // Update Status in Central Database (Accept / Reject)
-    async function updateRegistrationStatus(id, newStatus) {
+    // Update Status with Central Firestore Sync
+    window.updateRegistrationStatus = async function(id, newStatus) {
       if (newStatus === 'accepted') {
-        const currentAccepted = allRegistrations.filter(r => r.status === 'accepted' && r.id !== id).length;
+        const currentAccepted = window.allRegistrations.filter(r => r.status === 'accepted' && r.id !== id).length;
         if (currentAccepted >= TOTAL_SLOTS) {
-          showToast("Slot limit reached! All 12 slots are already occupied.", true);
+          window.showToast("Slot limit reached! All 12 slots are already occupied.", true);
           return;
         }
       }
 
       try {
-        if (db && currentUser) {
-          const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'registrations', id);
-          await updateDoc(docRef, { status: newStatus });
-        } else {
-          const item = allRegistrations.find(r => r.id === id);
-          if (item) item.status = newStatus;
-          localStorage.setItem('abs_cricket_teams_data', JSON.stringify(allRegistrations));
-          refreshUI();
-        }
-        showToast(newStatus === 'accepted' ? 'Team verified and slot confirmed in cloud!' : 'Application rejected in cloud.');
+        await registrationsColRef.doc(id).update({ status: newStatus });
+        window.showToast(newStatus === 'accepted' ? 'Team verified and slot confirmed centrally!' : 'Application marked as rejected.');
       } catch (err) {
-        console.error("Failed to update status:", err);
-        showToast("Failed to update database.", true);
+        console.error("Status update failed:", err);
+        window.showToast("Could not update status. Check permissions.", true);
       }
-    }
-    window.updateRegistrationStatus = updateRegistrationStatus;
+    };
 
-    // Delete Registration from Central Database
-    async function deleteRegistration(id) {
+    // Delete Registration with Central Firestore Sync
+    window.deleteRegistration = async function(id) {
       if (!confirm("Are you sure you want to permanently delete this registration?")) return;
 
       try {
-        if (db && currentUser) {
-          const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'registrations', id);
-          await deleteDoc(docRef);
-        } else {
-          allRegistrations = allRegistrations.filter(r => r.id !== id);
-          localStorage.setItem('abs_cricket_teams_data', JSON.stringify(allRegistrations));
-          refreshUI();
-        }
-        showToast("Application deleted.");
+        await registrationsColRef.doc(id).delete();
+        window.showToast("Application removed from database.");
       } catch (err) {
-        console.error("Failed to delete document:", err);
-        showToast("Failed to delete from database.", true);
+        console.error("Delete failed:", err);
+        window.showToast("Could not delete record.", true);
       }
-    }
-    window.deleteRegistration = deleteRegistration;
+    };
 
-    // Central Admin Authentication
-    function handleAdminTabClick() {
-      playBeep(650, 'sine', 0.08);
-      if (isAdminLoggedIn) {
-        switchView('admin');
+    // Admin Navigation & Cross-Device Authentication
+    window.handleAdminTabClick = function() {
+      window.playBeep(650, 'sine', 0.08);
+      if (window.isAdminLoggedIn) {
+        window.switchView('admin');
       } else {
-        openAdminLoginModal();
+        window.openAdminLoginModal();
       }
-    }
-    window.handleAdminTabClick = handleAdminTabClick;
+    };
 
-    function openAdminLoginModal() {
+    window.openAdminLoginModal = function() {
       const modal = document.getElementById('adminLoginModal');
       modal.classList.remove('hidden');
       modal.classList.add('flex');
       document.getElementById('adminPinInput').value = '';
       document.getElementById('adminPinInput').focus();
-    }
-    window.openAdminLoginModal = openAdminLoginModal;
+    };
 
-    function closeAdminLoginModal() {
+    window.closeAdminLoginModal = function() {
       const modal = document.getElementById('adminLoginModal');
       modal.classList.add('hidden');
       modal.classList.remove('flex');
-    }
-    window.closeAdminLoginModal = closeAdminLoginModal;
+    };
 
-    function handleAdminLogin(e) {
+    // Cross-Device PIN Authentication checking Firestore
+    window.handleAdminLogin = async function(e) {
       e.preventDefault();
       const enteredPin = document.getElementById('adminPinInput').value.trim();
 
-      // Central Cloud PIN verification
-      if (enteredPin === centralAdminPin) {
-        isAdminLoggedIn = true;
-        closeAdminLoginModal();
-        document.getElementById('adminTabBtnText').innerText = 'Admin Dashboard';
-        switchView('admin');
-        showToast("Authenticated as Administrator!");
-      } else {
-        showToast("Incorrect PIN! Please enter the valid code.", true);
+      try {
+        const docSnap = await adminConfigDocRef.get();
+        if (docSnap.exists) {
+          const cloudData = docSnap.data();
+          if (cloudData && cloudData.pin) {
+            currentAdminPin = String(cloudData.pin);
+          }
+        }
+      } catch (err) {
+        console.warn("Direct PIN check issue:", err);
       }
-    }
-    window.handleAdminLogin = handleAdminLogin;
 
-    function logoutAdmin() {
-      isAdminLoggedIn = false;
+      if (enteredPin === currentAdminPin) {
+        window.isAdminLoggedIn = true;
+        window.closeAdminLoginModal();
+        document.getElementById('adminTabBtnText').innerText = 'Admin Dashboard';
+        window.switchView('admin');
+        window.showToast("Authenticated as Administrator!");
+      } else {
+        window.showToast("Incorrect PIN! Access denied.", true);
+      }
+    };
+
+    window.logoutAdmin = function() {
+      window.isAdminLoggedIn = false;
       document.getElementById('adminTabBtnText').innerText = 'Admin Room';
-      switchView('public');
-      showToast("Admin session ended.");
-    }
-    window.logoutAdmin = logoutAdmin;
+      window.switchView('public');
+      window.showToast("Admin session ended.");
+    };
 
-    function openChangePinModal() {
+    window.openChangePinModal = function() {
       const modal = document.getElementById('changePinModal');
       modal.classList.remove('hidden');
       modal.classList.add('flex');
       document.getElementById('currPinInput').value = '';
       document.getElementById('newPinInput').value = '';
       document.getElementById('confirmNewPinInput').value = '';
-    }
-    window.openChangePinModal = openChangePinModal;
+    };
 
-    function closeChangePinModal() {
+    window.closeChangePinModal = function() {
       const modal = document.getElementById('changePinModal');
       modal.classList.add('hidden');
       modal.classList.remove('flex');
-    }
-    window.closeChangePinModal = closeChangePinModal;
+    };
 
-    // Change Central Admin PIN (Saves to Central Cloud)
-    async function handleSaveNewPin(e) {
+    // Global PIN Change in Firestore (Updates All Devices Worldwide)
+    window.handleSaveNewPin = async function(e) {
       e.preventDefault();
       const curr = document.getElementById('currPinInput').value.trim();
       const newP = document.getElementById('newPinInput').value.trim();
       const conf = document.getElementById('confirmNewPinInput').value.trim();
 
-      if (curr !== centralAdminPin) {
-        showToast("Current PIN is incorrect!", true);
+      if (curr !== currentAdminPin) {
+        window.showToast("Current PIN is incorrect!", true);
         return;
       }
       if (newP.length < 4) {
-        showToast("New PIN must be at least 4 digits!", true);
+        window.showToast("New PIN must be at least 4 digits!", true);
         return;
       }
       if (newP !== conf) {
-        showToast("New PIN inputs do not match!", true);
+        window.showToast("New PIN confirmation does not match!", true);
         return;
       }
 
       try {
-        if (db && currentUser) {
-          const pinDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'admin_config');
-          await setDoc(pinDocRef, { adminPin: newP, updatedAt: Date.now() }, { merge: true });
-        }
-        centralAdminPin = newP;
-        localStorage.setItem('abs_admin_pin', newP);
+        await adminConfigDocRef.set({
+          pin: newP,
+          updatedAt: Date.now()
+        }, { merge: true });
 
-        closeChangePinModal();
-        showToast("PIN updated successfully on cloud! No other device can use the old PIN.");
+        currentAdminPin = newP;
+        window.closeChangePinModal();
+        window.showToast("PIN updated globally! All devices must now use this new PIN.");
       } catch (err) {
-        console.error("Failed to update central PIN:", err);
-        showToast("Failed to update PIN on cloud server.", true);
+        console.error("Error updating PIN in central Firestore:", err);
+        window.showToast("Could not update central PIN. Check Firestore permissions.", true);
       }
-    }
-    window.handleSaveNewPin = handleSaveNewPin;
+    };
 
     // Print & Export Team List
-    function exportTeamsPDF() {
-      const accepted = allRegistrations.filter(r => r.status === 'accepted');
+    window.exportTeamsPDF = function() {
+      const accepted = window.allRegistrations.filter(r => r.status === 'accepted');
       if (accepted.length === 0) {
-        showToast("No confirmed teams to print!", true);
+        window.showToast("No confirmed teams to print!", true);
         return;
       }
 
@@ -1482,53 +1417,48 @@
       printWindow.document.close();
       printWindow.focus();
       setTimeout(() => { printWindow.print(); }, 500);
-    }
-    window.exportTeamsPDF = exportTeamsPDF;
+    };
 
-    function switchView(view) {
+    window.switchView = function(view) {
       const publicView = document.getElementById('publicView');
       const adminView = document.getElementById('adminView');
 
       if (view === 'admin') {
         publicView.classList.add('hidden');
         adminView.classList.remove('hidden');
-        renderAdminList();
+        window.renderAdminList();
       } else {
         adminView.classList.add('hidden');
         publicView.classList.remove('hidden');
-        renderPublicConfirmedTeams();
+        window.renderPublicConfirmedTeams();
       }
       window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-    window.switchView = switchView;
+    };
 
-    function openBookingModal() {
-      playBeep(720, 'sine', 0.08);
+    window.openBookingModal = function() {
+      window.playBeep(720, 'sine', 0.08);
       const modal = document.getElementById('bookingModal');
       modal.classList.remove('hidden');
       modal.classList.add('flex');
-    }
-    window.openBookingModal = openBookingModal;
+    };
 
-    function closeBookingModal() {
+    window.closeBookingModal = function() {
       const modal = document.getElementById('bookingModal');
       modal.classList.add('hidden');
       modal.classList.remove('flex');
-    }
-    window.closeBookingModal = closeBookingModal;
+    };
 
-    function copyNumber(num, name) {
+    window.copyNumber = function(num, name) {
       const textarea = document.createElement('textarea');
       textarea.value = num;
       document.body.appendChild(textarea);
       textarea.select();
       try {
         document.execCommand('copy');
-        showToast(`${name}: ${num} copied to clipboard!`);
+        window.showToast(`${name}: ${num} copied to clipboard!`);
       } catch (err) {}
       document.body.removeChild(textarea);
-    }
-    window.copyNumber = copyNumber;
+    };
 
     // Dynamic Countdown Timer
     const targetTournamentDate = new Date('2026-11-13T07:00:00+05:30').getTime();
@@ -1603,7 +1533,8 @@
     }
 
     window.onload = function() {
-      initCloudBackend();
+      listenCentralAdminPIN();
+      listenRealtimeRegistrations();
       updateCountdown();
       setInterval(updateCountdown, 1000);
       setupParticles();
